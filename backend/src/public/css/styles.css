@@ -1,0 +1,151 @@
+/*=================
+    Generales
+=================*/
+:root {
+    --primary-yellow: #fae1a9;
+    --primary-black: #20170e;
+    --primary-purple: #8f5192;
+    --primary-red: #d1411f;
+    --primary-green: #abb751;
+
+    --mensaje-verde: #0a3622;
+    --fondo-verde: #d1e7dd;
+    --borde-verde: #a3cfbb;
+
+    --mensaje-rojo: #58151c;
+    --fondo-rojo: #f8d7da;
+    --borde-rojo: #f1aeb5;
+}
+
+.mensaje {
+    margin: 0 auto;
+    padding: 20px 60px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.error {
+    color: var(--mensaje-rojo);
+    background-color: var(--fondo-rojo);
+    border: 2px solid var(--borde-rojo);
+}
+
+.exito {
+    color: var(--mensaje-verde);
+    background-color: var(--fondo-verde);
+    border: 2px solid var(--borde-verde);
+}
+
+
+/*=================
+    Header
+=================*/
+header, #logo, .lista-nav {
+    display: flex;
+    align-items: center;
+}
+
+header {
+    justify-content: space-between;
+    border-bottom: 1px solid var(--mensaje-rojo);
+}
+
+ul {
+    padding-left: 0;
+    list-style: none;
+}
+
+#logo {
+    width: 25%;
+    justify-content: space-around;
+    margin-bottom: 0;
+}
+
+.logo-container {
+    width: 55px;
+}
+
+.logo-titulo {
+    margin-bottom: 0;
+    font-size: 1.2rem;
+    color: var(--primary-purple);
+}
+
+header nav {
+    width: 55%;
+}
+
+.lista-nav {
+    justify-content: space-around;
+    width: 100%;
+}
+
+
+
+
+/*=================
+    Cards
+=================*/
+.card-producto {
+    border: 1px solid;
+    border-radius: 5px;
+    width: 170px;
+    height: 170px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    margin: 10px;
+    background-color: var(--primary-black);
+}
+
+.card-producto h4, .card-producto p {
+    margin-bottom: 0;
+}
+
+.card-producto h4 {
+    color: var(--primary-green);
+}
+
+.card-img {
+    width: 65px;
+    max-height: 90px;
+}
+
+.card-producto, .card-producto h4 {
+    font-size: 14px;
+}
+
+#contenedor-productos {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+
+
+/*=================
+    Lista producto
+=================*/
+.getIdProduct-container {
+    width: 40%;
+}
+
+.lista-container {
+    width: 95%;
+}
+
+.lista-producto_img {
+    width: 100px;
+    border-radius: 0.25rem;
+}
+
+.lista-producto {
+    display: flex;
+    align-items: center;
+    /*
+    border-radius: 0.25rem;
+    border: 2px solid var(--primary-purple);
+    */
+    padding-bottom: 0;
+    justify-content: space-between;
+}
