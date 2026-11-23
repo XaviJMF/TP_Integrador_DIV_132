@@ -1,47 +1,83 @@
-<header>
+<!-- BARRA SUPERIOR -->
+<header class="topbar">
+
     <section id="logo">
+
         <div class="logo-container">
-            <img src="/img/burger-logo.png" class="logo" alt="Los pollos hermanos">
+            <img src="/img/burger-logo.png" class="logo" alt="Logo">
         </div>
 
         <h2 class="logo-titulo">Las vacas hermanas</h2>
+
+
     </section>
 
-    <nav>
-        <ul class="lista-nav">
-            <li>
-                <a href="/dashboard/principal">
-                    Principal
-                </a>
-            </li>
-            <li>
-                <a href="/dashboard/consultar">
-                    Obtener
-                </a>
-            </li>
-            <li>
-                <a href="/dashboard/crear">
-                    Crear
-                </a>
-            </li>
-            <li>
-                <a href="/dashboard/modificar">
-                    Modificar
-                </a>
-            </li>
-            <li>
-                <a href="/dashboard/eliminar">
-                    Eliminar
-                </a>
-            </li>
+    <div class="usuario-info">
+        Rol: Administrador
+    </div>
 
-            <li>
-                <!-- Formulario para hacer logout y destruir la sesion -->
-                <form action="/logout" method="POST" id="logout-form">
-                    <input type="submit" value="Logout">
-                </form>
-            </li>
-            
-        </ul>
-    </nav>
 </header>
+
+
+<!-- MENU LATERAL -->
+<aside class="sidebar">
+
+    <div class="sidebar-seccion">
+
+        <span class="sidebar-titulo">HERRAMIENTAS</span>
+
+        <nav>
+            <ul class="lista-nav">
+
+                <li>
+                    <a href="/dashboard/principal">
+                        <span>▦</span> Principal
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/dashboard/consultar">
+                        <span>⌕</span> Obtener
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/dashboard/crear">
+                        <span>＋</span> Crear
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/dashboard/modificar">
+                        <span>✎</span> Modificar
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/dashboard/eliminar">
+                        <span>×</span> Eliminar
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+
+    </div>
+
+
+    <!-- CERRAR SESION -->
+    <div class="sidebar-footer">
+
+        <span class="sidebar-titulo">CUENTA</span>
+
+        <form action="/logout" method="POST" id="logout-form">
+
+            <button type="submit">
+                Cerrar sesión ↗
+            </button>
+
+        </form>
+
+    </div>
+
+</aside>
