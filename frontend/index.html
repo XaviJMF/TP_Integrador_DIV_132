@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module" src="js/index.js"></script>
+    <link rel="stylesheet" href="css/style.css" defer>
+    <title>App</title>
+</head>
+<body>
+    <header class="header">
+        <h1 id="title-store">miga.</h1>
+        <div class="navbar">
+            <div class="nav-position">
+                <span>1</span>
+                <button type="button" data-vista="welcome">Bienvenida</button>
+            </div>
+            <div class="nav-position">
+                <span>2</span>
+                <button type="button" data-vista="menu">Menú</button>
+            </div>
+            <div class="nav-position">
+                <span>3</span>
+                <button type="button" data-vista="cart">Carrito</button>
+            </div>
+            <div class="nav-position">
+                <span>4</span>
+                <button type="button" data-vista="ticket">Ticket</button>
+            </div>
+        </div>
+        <button id="btn-admin-panel">Administración ↗</button>
+    </header>
+    <main>
+        <div id="view-welcome" class="screen-view">
+            <div class="">
+                <p>.</p>
+                <h1>Registra tu pedido aqui</h1>
+                <p>.</p>
+
+                <div>
+                    <p>.</p>
+                    <input type="text" class="input-name" placeholder="Ingresá tu nombre">
+                    <p>.</p>
+                </div>
+                <a href="menu.html" id="btn-menu">
+                    <span>Ver el menú</span>
+                    <span>→</span>
+                </a>
+                <p>.</p>
+            </div>
+            <div class="">
+                <div class="background-welcome">
+                    <p>.</p>
+                    <img src="" alt="">
+                </div>
+                <div>
+                    <p>.</p>
+                </div>
+            </div>
+        </div>
+        <div id="view-menu" class="screen-view">
+            <div class="right-block">
+            <div class="top">
+                <div>
+                    <p>EL MENÚ</p>
+                    <h1>¿Que te tienta hoy?</h1>
+                    <p>Ingredientes de verdad. preparados al momento.</p>
+                </div>
+                <input class="input-filter" type="text" placeholder="Buscar en el catálogo">
+            </div>
+            <div class="mid">
+                <div class="catalog">
+                    <button> Producto 1</button>
+                    <button> Producto 2</button>
+                </div>
+                <p>0 Productos disponibles</p>
+            </div>
+            <div class="view-products"></div>
+            <div class="pagination">
+                <button type="button" id="btn-prev-page">← Anterior</button>
+                <span id="page-info">Página 1</span>
+                <button type="button" id="btn-next-page">Siguiente →</button>
+            </div>
+        </div>
+        </div>
+        <div id="view-cart" class="screen-view">
+            <div>
+                <div>
+                    <div>
+                        <h1>Tu carrito</h1>
+                        <p>Revisa tu pedido antes de confirmar.</p>
+                    </div>
+                </div>
+                <div>
+                    <table>
+
+                    </table>
+                </div>
+            </div>
+            <div>
+                <div>
+                    <h2>Resumen del pedido</h2>
+                </div>
+                <div>
+                    <ul class="user-cart">
+                        <li>Producto 1</li>
+                        <li>Producto 2</li>
+                        <li>Producto 3</li>
+                    </ul>
+                </div>
+                <div>
+                    <p>Total | 3 Unidades</p>
+                    <h2>$20.000</h2>
+                    <button>Confirmar pedido →</button>
+                </div>
+            </div>
+        </div>
+        <div id="view-ticket" class="screen-view">
+            <div>
+                <div>
+                    <img src="" alt="">
+                </div>
+                <div>
+                    <h1>¡Gracias, Usuario!</h1>
+                    <h3>Tu pedido ya está en buenas manos.</h3>
+                </div>
+                <button>Hacer otro pedido →</button>
+                <button>Descargar ticket</button>
+            </div>
+            <div>
+                <div>
+                    <div>
+                        <h2>miga.</h2>
+                        <p>Ticket de pedido</p>
+                        <div>Confirmado</div>
+                    </div>
+                    <div>
+                        <h1>M-001</h1>
+                        <p>Cliente: Usuario</p>
+                        <p>13 nov 2026 12:30 - Local Centro</p>
+                    </div>
+                    <div>
+                        <ul class="user-cart">
+                            <li>Producto 1</li>
+                            <li>Producto 2</li>
+                            <li>Producto 3</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <p>Total</p>
+                        <h2>$20.000</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>Div 132 - Agustin Mastrocola | Javier Moya</p>
+    </footer>
+</body>
+</html>

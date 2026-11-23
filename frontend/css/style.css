@@ -1,0 +1,224 @@
+:root {
+    /*Textos*/
+    --title-store: #CB4728;
+    --btn-admin-panel: #3c3d3d;
+    --text-btn-menu: #ffffff;
+
+    /*Bordes*/
+    --border-color: #E4E5DD;
+
+    /*Backgrounds*/
+    --nav-position-activate: #CB4728;
+    --nav-position-inactive: #EFEFE8;
+    --btn-menu: #d5634a;
+    --btn-menu-hover: #CB4728;
+}
+
+/* CONFIG GENERAL */
+
+* {
+    margin: 0px;
+    padding: 0px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+body {
+    background-color: #fcf5f5;
+}
+
+.screen-view {
+    display: none;
+}
+
+
+.screen-view.active{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 20px 50px;
+}
+
+/* HEADER */
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding: 2px 20px;
+    height: 9vh;
+}
+
+#title-store {
+    color: var(--title-store);
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    gap: 35px;
+
+}
+
+.nav-position {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-position span {
+    display: flex;
+    height: 25px;
+    width: 25px;
+    border-radius: 14px;
+    justify-content: center;
+    margin-right: 10px;
+    background-color: var(--nav-position-inactive);
+}
+
+.nav-position button {
+    border: none;
+    background: none;
+    font-size: 16px;
+}
+
+.nav-position button:hover {
+    cursor: pointer;
+}
+
+.nav-position a {
+    text-decoration: none;
+    color: black;
+}
+
+/* BOTON DE PANEL DEL ADMIN*/
+
+#btn-admin-panel {
+    color: var(--text-btn-admin-panel);
+    background: none;
+    border: none;
+}
+
+#btn-admin-panel:hover {
+    cursor: pointer;
+}
+
+/* MAIN */
+
+.main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 20px 50px;
+    height: 70vh;
+}
+
+
+/* VISTA DE BIENVENIDA */
+
+.input-name {
+    height: 32px;
+    width: 28vw;
+    padding-left: 7px;
+    border-radius: 7px;
+    border: 1px solid;
+}
+
+#btn-menu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--btn-menu);
+    height: 36px;
+    width: 28vw;
+    padding: 0px 12px;
+    border: none;
+    border-radius: 7px;
+    text-align: start;
+    text-decoration: none;
+}
+
+#btn-menu span {
+    color: var(--text-btn-menu);
+}
+
+#btn-menu:hover {
+    cursor: pointer;
+    background-color: var(--btn-menu-hover);
+}
+
+/* VISTA DEL MENÚ*/
+
+.right-block {
+    display: flex;
+    flex-direction: column;
+    margin-right: 60px;
+    width: 66vw;
+}
+
+.top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 20px;
+}
+
+.mid {
+    display: flex;
+    justify-content: space-between;
+}
+
+.catalog {
+    display: flex;
+    gap: 20px
+}
+
+.catalog button {
+    border: none;
+    border-radius: 5px;
+    color: white;
+    background-color: black;
+    padding: 5px 12px;
+}
+
+.catalog button:hover {
+    cursor: pointer;
+    color: white;
+    background-color: rgb(93, 91, 91);
+}
+
+.input-filter {
+    height: 32px;
+    width: 28vw;
+    padding-left: 7px;
+    border-radius: 7px;
+    border: 1px solid;
+}
+
+.view-products {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(2, auto);
+  gap: 1rem;
+}
+
+.modal-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.modal-card img {
+    width: 20%;
+    object-fit: cover;
+}
+
+/* VISTA DEL CARRITO*/
+
+/* FOOTER */
+
+footer {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    border-top: 1px solid var(--border-color);
+
+}
