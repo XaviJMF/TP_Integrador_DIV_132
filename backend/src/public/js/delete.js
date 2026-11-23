@@ -105,4 +105,3 @@ function mostrarMensaje(estado, mensaje) {
         <p class="mensaje ${estado}">${mensaje}</p>
     `;
 }
-

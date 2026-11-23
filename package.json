@@ -2,9 +2,9 @@
   "name": "practica-en-clase",
   "version": "1.0.0",
   "description": "",
-  "main": "backend/app.js",
+  "main": "backend/index.js",
   "scripts": {
-    "dev": "node --watch backend/app.js",
+    "dev": "node --watch backend/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

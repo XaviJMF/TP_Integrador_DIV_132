@@ -36,6 +36,10 @@
     border: 2px solid var(--borde-verde);
 }
 
+.centrado {
+    text-align: center;
+}
+
 
 /*=================
     Header
@@ -47,7 +51,7 @@ header, #logo, .lista-nav {
 
 header {
     justify-content: space-between;
-    border-bottom: 1px solid var(--mensaje-rojo);
+    height: 90px;
 }
 
 ul {
@@ -118,14 +122,22 @@ header nav {
 
 #contenedor-productos {
     display: flex;
+    justify-content: center;
     flex-wrap: wrap;
 }
 
 
 
-/*=================
+/*====================
     Lista producto
-=================*/
+=====================*/
+
+#post-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+}
+
 .getIdProduct-container {
     width: 40%;
 }
@@ -148,4 +160,19 @@ header nav {
     */
     padding-bottom: 0;
     justify-content: space-between;
+}
+
+
+/*=================
+    Login
+=================*/
+
+.login-container {
+    width: 30%;
+    margin-top: 80px;
+}
+
+#mensajes {
+    width: 90%;
+    margin: 0 auto;
 }

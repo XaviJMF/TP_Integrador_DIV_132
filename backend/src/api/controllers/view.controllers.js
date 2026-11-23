@@ -1,8 +1,7 @@
 /*===============================
 	Controladores de producto
 ===============================*/
-
-import ProductModels from "../models/product.models.js";
+import ProductModels from "../models/product.model.js";
 
 
 ///////////////////

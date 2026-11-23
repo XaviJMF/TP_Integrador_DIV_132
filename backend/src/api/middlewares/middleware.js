@@ -1,15 +1,13 @@
-/*=====================
-	Middlewares
-=====================*/
-// Funciones que se ejecutan entre la req y la res
+////middlewares -> Funciones que se ejecutan entre la req y la res
+
 
 // Middleware logger para mostrar por consola las solicitudes de nuestro servidor
-const loggerUrl = (req, res, next) => {
-    let fecha = new Date();
+const loggerURL = ((req, res, next) => {
+	let fecha = new Date();
     console.log(`[${fecha.toLocaleDateString()} ${fecha.toLocaleTimeString()}] ${req.method} ${req.url}`);
     
-    next(); // Pasamos al siguiente middleware o a la respuesta
-}
+	next(); // Pasamos al siguiente middleware o a la respuesta
+});
 
 
 
@@ -27,7 +25,6 @@ const validateId = (req, res, next) => {
 	req.id = id;
 	next();
 }
-
 
 
 // Middleware para validar los campos del formulario
@@ -70,9 +67,19 @@ const validateProduct = (req, res, next) => {
 }
 
 
-// Exportamos nuestros middlewares para poder usarlos en otros modulos
-export {
-    loggerUrl,
+// Middleware para proteger rutas de las vistas del Admin
+const requireLogin = (req, res, next) => {
+    if (!req.session.user) {
+        return res.redirect("/login");
+    }
+
+	next(); // Damos paso al siguiente middleware o a procesar la respuesta
+}
+
+
+export{
+    loggerURL,
     validateId,
-    validateProduct
+    validateProduct,
+	requireLogin
 }

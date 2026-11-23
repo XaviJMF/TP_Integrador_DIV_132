@@ -1,9 +1,5 @@
-/*===============================
-	Controladores de producto
-===============================*/
-import ProductModels from "../models/product.models.js"; // Importamos los modelos
-
-
+import connection from "../database/db.js";
+import ProductModels from "../models/product.model.js"
 
 ///////////////////
 // GET active products -> Obtener todos los productos activos

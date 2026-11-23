@@ -6,6 +6,7 @@
 
         <h2 class="logo-titulo">Las vacas hermanas</h2>
     </section>
+
     <nav>
         <ul class="lista-nav">
             <li>
@@ -33,6 +34,14 @@
                     Eliminar
                 </a>
             </li>
+
+            <li>
+                <!-- Formulario para hacer logout y destruir la sesion -->
+                <form action="/logout" method="POST" id="logout-form">
+                    <input type="submit" value="Logout">
+                </form>
+            </li>
+            
         </ul>
     </nav>
 </header>
