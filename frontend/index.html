@@ -28,6 +28,7 @@
                 <button type="button" data-vista="ticket">Ticket</button>
             </div>
         </div>
+        <span id="user-greeting">Hola, Usuario</span>
         <button id="btn-admin-panel">Administración ↗</button>
     </header>
     <main>
@@ -39,7 +40,7 @@
 
                 <div>
                     <p>.</p>
-                    <input type="text" class="input-name" placeholder="Ingresá tu nombre">
+                    <input type="text" class="input-name" maxlength="20" placeholder="Ingresá tu nombre (Máx. 20 Carácteres)">
                     <p>.</p>
                 </div>
                 <a href="menu.html" id="btn-menu">
@@ -91,27 +92,25 @@
                         <p>Revisa tu pedido antes de confirmar.</p>
                     </div>
                 </div>
-                <div>
-                    <table>
+                <div class="products-cart">
 
-                    </table>
                 </div>
             </div>
-            <div>
+            <div class="cart-summary-card">
                 <div>
                     <h2>Resumen del pedido</h2>
                 </div>
-                <div>
+                <div class="cart-summary-items">
                     <ul class="user-cart">
                         <li>Producto 1</li>
                         <li>Producto 2</li>
                         <li>Producto 3</li>
                     </ul>
                 </div>
-                <div>
-                    <p>Total | 3 Unidades</p>
-                    <h2>$20.000</h2>
-                    <button>Confirmar pedido →</button>
+                <div class="cart-summary-footer">
+                    <p class="cart-summary-meta">Total | 3 Unidades</p>
+                    <h2 class="cart-summary-total">$20.000</h2>
+                    <button class="btn-confirm-order">Confirmar pedido →</button>
                 </div>
             </div>
         </div>
@@ -121,7 +120,7 @@
                     <img src="" alt="">
                 </div>
                 <div>
-                    <h1>¡Gracias, Usuario!</h1>
+                    <h1 id="user-greetings"></h1>
                     <h3>Tu pedido ya está en buenas manos.</h3>
                 </div>
                 <button>Hacer otro pedido →</button>
@@ -136,7 +135,7 @@
                     </div>
                     <div>
                         <h1>M-001</h1>
-                        <p>Cliente: Usuario</p>
+                        <p id="user-ticket"></p>
                         <p>13 nov 2026 12:30 - Local Centro</p>
                     </div>
                     <div>
