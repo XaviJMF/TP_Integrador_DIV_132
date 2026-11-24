@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="module" src="js/index.js"></script>
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
     <title>Ticket</title>
 </head>
-<body>
+<body> 
     <header class="header">
         <h1 id="title-store">miga.</h1>
         <div class="navbar">
@@ -40,7 +41,7 @@
                 <h3>Tu pedido ya está en buenas manos.</h3>
             </div>
             <button>Hacer otro pedido →</button>
-            <button>Descargar ticket</button>
+            <button id="boton-imprimir">Descargar ticket</button>
         </div>
         <div>
             <div>
@@ -64,6 +65,7 @@
                 <div>
                     <p>Total</p>
                     <h2>$20.000</h2>
+                    
                 </div>
             </div>
         </div>

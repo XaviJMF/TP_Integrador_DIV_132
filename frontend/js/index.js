@@ -131,7 +131,7 @@ async function cargarProductos() {
     listaProductos = Array.isArray(data.payload) ? data.payload : [];
 
     // Renderiza la primera página del catálogo y sincroniza el carrito una vez cargados los productos
-    ProductosPorPagina(1);
+    ProductosPorPagina(1); 
     mostrarCarrito();
   } catch (error) {
     console.error("No se pudieron cargar los productos:", error);
@@ -422,6 +422,49 @@ mostrarVista(window.location.hash.replace("#", ""));
 
 
 // CARRITO (FALTA IMPRIMIR PDF)
+const boton_imprimir = document.getElementById("boton-imprimir");
+boton_imprimir.addEventListener("click", imprimirTicket);
+
+function imprimirTicket(){
+  const { jsPDF } = window.jspdf;
+
+  const doc = new jsPDF(); 
+
+  let y = 20;
+  doc.setFontSize(20);
+  doc.text("TICKET DE TU COMPRA: ", 20, y );
+  y += 20;
+
+  doc.setFontSize(14);
+  /*
+  storageCarrito.forEach(producto => {
+
+        idProductos.push(producto.id); // Llenamos el array de ids de productos (necesario para crear la venta despues)
+
+        doc.text(`${producto.name} - ${producto.price}`, 20, y); // 20px derecha y valor del eje y
+
+        // Al terminar la primer iteracion, incrementamos la posicion vertical para evitar solapamiento
+        y += 10;
+    });
+    // Calculamos el valor total del ticket usando reduce
+    const precioTotal = carrito.reduce((acumulador, producto) => acumulador + parseInt(producto.price), 0);
+
+    // Separamos verticalmente los productos del total
+    y += 10
+
+    doc.text(`TOTAL: $${precioTotal}`, 20, y);
+
+    const fecha = new Date();
+    const nombreTicket = `${nombreUsuario}_${fecha.toISOString()}`;
+
+    // Imprimimos ticket de venta
+    doc.save(`ticket-${nombreTicket}.pdf`);
+
+    // Llamaremos a la funcion para registrar ventas
+    registrarVenta(precioTotal, idProductos);
+    */
+}
+
 
 
 // INIT
