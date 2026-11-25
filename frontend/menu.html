@@ -13,9 +13,9 @@
         <div class="navbar">
             <div class="nav-position">
                 <span>1</span>
-                <a href="welcome.html">Bienvenida</a>
+                <p>Bienvenida</p>
             </div>
-            <div class="nav-position">
+            <div class="nav-position-active">
                 <span>2</span>
                 <a href="menu.html">Menú</a>
             </div>
@@ -25,13 +25,16 @@
             </div>
             <div class="nav-position">
                 <span>4</span>
-                <a href="ticket.html">Ticket</a>
+                <p>Ticket</p>
             </div>
         </div>
         <p id="user-greeting"></p>
+        
+        <a href="welcome.html" id="btn-change-name">
+            Cambiar nombre
+        </a>
     </header>
-    <main class="main">
-        <div class="right-block">
+    <main class="screen-menu">
             <div class="top">
                 <div>
                     <p>EL MENÚ</p>
@@ -45,15 +48,14 @@
                     <button> Producto 1</button>
                     <button> Producto 2</button>
                 </div>
+                 <div class="pagination">
+                        <button type="button" id="btn-prev-page">← Anterior</button>
+                        <span id="page-info">Página 1</span>
+                        <button type="button" id="btn-next-page">Siguiente →</button>
+                    </div>
                 <p>0 Productos disponibles</p>
             </div>
             <div class="view-products"></div>
-            <div class="pagination">
-                <button type="button" id="btn-prev-page">← Anterior</button>
-                <span id="page-info">Página 1</span>
-                <button type="button" id="btn-next-page">Siguiente →</button>
-            </div>
-        </div>
     </main>
     <footer>
         <p>Div 132 - Agustin Mastrocola | Javier Moya</p>

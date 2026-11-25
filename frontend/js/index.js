@@ -1,38 +1,40 @@
 
+// ================================================================================
+// VARIABLES GLOBALES
+
 // ARRAY DE PRODUCTOS
 let listaProductos = []
+// VARIABLES PARA PAGINACION
+let paginaActual = 1;
+const productosPorPagina = 10; // 2 filas x 5 columnas
 
+// VARIABLES EN LocalStorage
+// PEDIDO CONFIRMADO?
+const STORAGE_PEDIDO_CONFIRMADO = "pedidoConfirmado";
+// Nombre clave para guardar el nombre de usuario en el LocalStorage
+const STORAGE_USUARIO = "username";
+// Clave utilizada para persistir el carrito en LocalStorage
+const storageCarrito = "localStorage";
+
+// BOTONES
 // BOTONES DE LA PAGINACION
 const btnPrevPage = document.getElementById("btn-prev-page");
 const btnNextPage = document.getElementById("btn-next-page");
 const pageInfo = document.getElementById("page-info");
 
-// VARIABLES PARA PAGINACION
-let paginaActual = 1;
-const productosPorPagina = 10; // 2 filas x 5 columnas
+const btnMenu = document.getElementById("btn-menu");
 
-// ARRAY DE VISTAS Y BOTONES DEL NAV
-const viewApp = ["welcome", "menu", "cart", "ticket"];
-const botones = document.querySelectorAll(".nav-position button[data-vista]");
-const secciones = document.querySelectorAll(".screen-view");
+const btnConfirmar = document.querySelector(".btn-confirm-order");
 
+const btnNuevoPedido = document.querySelector(".btn-finish");
 
-// BIENVENIDA - GUARDAR Y ACTUALIZAR NOMBRE ENTRE LAS VISTAS
+// Variable principal del carrito inicializada desde LocalStorage
+let carrito = leerCarrito();
 
-// Nombre clave para guardar el nombre de usuario en el LocalStorage
-const STORAGE_USUARIO = "username";
+// ================================================================================
 
-function guardarNombreUsuario(nombre) {
-  // VALIDACION: Comprueba que sea de tipo string, nuevamente elimina espacios en caso de ser String
-  const limpio = typeof nombre === "string" ? nombre.trim() : "";
-  try {
-    // Guarda el resultado en el LocalStorage
-    localStorage.setItem(STORAGE_USUARIO, limpio);
-  } catch (error) {
-    console.error("Error al guardar el nombre de usuario:", error);
-  }
-  return limpio;
-}
+// ================================================================================
+// LECTURAS
 
 function leerNombreUsuario() {
   try {
@@ -46,6 +48,158 @@ function leerNombreUsuario() {
     return "";
   }
 }
+
+function leerCarrito() {
+  try {
+    // Recupera el carrito guardado en LocalStorage
+    const guardado = localStorage.getItem(storageCarrito);
+    const parsed = guardado ? JSON.parse(guardado) : [];
+    // VALIDACION: Asegura que el valor parseado sea un array para evitar fallos en .map() o .find()
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    console.error("Error al leer el carrito de localStorage:", error);
+    // Devuelve array vacío para que el resto de la aplicación siga funcionando sin romperse
+    return [];
+  }
+}
+
+function calcularTotal() {
+    return carrito.reduce((total, producto) => {
+        const precio = Number(producto.price) || 0;
+        const cantidad = Number(producto.cantidad) || 0;
+
+        return total + (precio * cantidad);
+    }, 0);
+}
+
+function calcularUnidades() {
+    return carrito.reduce((total, producto) => {
+        return total + (Number(producto.cantidad) || 0);
+    }, 0);
+}
+
+// Comprueba si existe un nombre válido.
+function usuarioRegistrado() {
+    return leerNombreUsuario().length > 0;
+}
+
+// Comprueba si el pedido ya fue confirmado.
+function pedidoConfirmado() {
+    return localStorage.getItem(STORAGE_PEDIDO_CONFIRMADO) === "true";
+}
+
+// Controla el acceso según la página actual.
+function controlarAcceso() {
+
+    const pagina = window.location.pathname.split("/").pop();
+
+    const nombreValido = usuarioRegistrado();
+    const confirmado = pedidoConfirmado();
+
+    // Sin nombre: solamente puede acceder a bienvenida.
+    if (!nombreValido && pagina !== "welcome.html") {
+        window.location.replace("welcome.html");
+        return false;
+    }
+
+    // Con pedido confirmado: solamente puede acceder al ticket.
+    if (confirmado && pagina !== "ticket.html" && pagina !== "welcome.html") {
+        window.location.replace("ticket.html");
+        return false;
+    }
+
+    // Sin pedido confirmado: no puede entrar directamente al ticket.
+    if (!confirmado && pagina === "ticket.html") {
+        window.location.replace("carrito.html");
+        return false;
+    }
+
+    return true;
+}
+
+// ================================================================================
+
+// ================================================================================
+// ESCRITURA
+
+function guardarNombreUsuario(nombre) {
+  // VALIDACION: Comprueba que sea de tipo string, nuevamente elimina espacios en caso de ser String
+  const limpio = typeof nombre === "string" ? nombre.trim() : "";
+  try {
+    // Guarda el resultado en el LocalStorage
+    localStorage.setItem(STORAGE_USUARIO, limpio);
+  } catch (error) {
+    console.error("Error al guardar el nombre de usuario:", error);
+  }
+  return limpio;
+}
+
+
+function guardarCarrito() {
+  try {
+    // Serializa y guarda el estado actual del carrito en LocalStorage
+    localStorage.setItem(storageCarrito, JSON.stringify(carrito));
+  } catch (error) {
+    console.error("Error al guardar el carrito de localStorage:", error);
+  }
+}
+
+function agregarCarrito(idProducto) {
+  // Busca el producto seleccionado en el catálogo cargado en memoria
+  const p = listaProductos.find((prod) => Number(prod.id) === Number(idProducto));
+  // VALIDACION: Si no existe el producto en listaProductos, corta para no agregar datos inválidos
+  if (!p) return;
+
+  // Verifica si el producto ya está en el carrito para sumar cantidad o crear un nuevo ítem
+  const existente = carrito.find((item) => Number(item.id) === Number(p.id));
+  if (existente) {
+    existente.cantidad += 1;
+  } else {
+    carrito.push({
+      id: p.id,
+      name: p.name,
+      price: p.price,
+      cantidad: 1,
+    });
+  }
+
+  guardarCarrito();
+  mostrarCarrito();
+  ProductosPorPagina(paginaActual);
+}
+
+function quitarDelCarrito(idProducto) {
+  carrito = carrito.filter((item) => Number(item.id) !== Number(idProducto));
+  guardarCarrito();
+  mostrarCarrito();
+
+  if (document.querySelector(".view-products")) {
+    ProductosPorPagina(paginaActual);
+  }
+}
+
+// Modifica la cantidad de un ítem del carrito (+1 o -1) y lo elimina si llega a 0
+function cambiarCantidadCarrito(idProducto, delta) {
+  const index = carrito.findIndex((item) => Number(item.id) === Number(idProducto));
+  // VALIDACION: Sale si el producto no se encuentra dentro del carrito
+  if (index === -1) return;
+
+  const nuevaCantidad = (Number(carrito[index].cantidad) || 1) + delta;
+
+  if (nuevaCantidad <= 0) {
+    // Elimina el producto del carrito cuando la cantidad baja de 1
+    carrito.splice(index, 1);
+  } else {
+    carrito[index].cantidad = nuevaCantidad;
+  }
+
+  guardarCarrito();
+  mostrarCarrito();
+}
+// ================================================================================
+
+// ================================================================================
+// VENTANA BIENVENIDA
 
 // Obtiene las etiquetas de las vistas y las guarda en variantes para luego validarlas e imprimir los mensajes que se necesitan segun la vista
 function crearMensajePorNombre(nombreVisible) {
@@ -88,6 +242,7 @@ function syncInputNombre() {
   });
 }
 
+/*
 // Guarda el boton "Ver el menú" de la vista de bienvenida para validar que exista y luego verificar si se intearctua
 const btnMenu = document.getElementById("btn-menu");
 if (btnMenu) {
@@ -112,11 +267,9 @@ if (btnMenu) {
   });
 }
 
-// MENU
+*/
 
-
-
-// VISTA DE PRODUCTOS
+// VISTA DE MENU
 async function cargarProductos() {
   try {
     // Solicita el listado de productos al endpoint del backend
@@ -178,16 +331,22 @@ function ProductosPorPagina(pagina) {
 
   // Recorre cada producto de la pagina actual y genera su card en HTML, por ultimo lo agrega a la vista
   productosPagina.forEach((p) => {
-    let card = `
-      <div class="modal-card">
-        <img src="${p.image}" alt="" class="product-img">
-        <h2 class="product-title">${p.name}</h2>
-        <p class="product-price">${p.price}</p>
-        <button data-id="${p.id}" class="btn-add">Agregar +</button>
-      </div>
-    `;
-    viewProducts.innerHTML += card;
-  });
+  const itemEnCarrito = carrito.find((item) => Number(item.id) === Number(p.id));
+  const btnQuitar = itemEnCarrito
+    ? `<button type="button" data-id="${p.id}" class="btn-remove">Quitar</button>`
+    : "";
+
+  let card = `
+    <div class="modal-card">
+      <img src="${p.image}" alt="" class="product-img">
+      <h2 class="product-title">${p.name}</h2>
+      <p class="product-price">${p.price}</p>
+      <button data-id="${p.id}" class="btn-add">Agregar +</button>
+      ${btnQuitar}
+    </div>
+  `;
+  viewProducts.innerHTML += card;
+});
 }
 
 function actualizarControlesPaginacion(totalPaginas) {
@@ -204,81 +363,32 @@ function actualizarControlesPaginacion(totalPaginas) {
     btnNextPage.disabled = paginaActual >= totalPaginas;
   }
 }
+// ================================================================================
 
-// Segun el boton que clickee el usuario avanza (se incrementa) o retrocede (se resta) a la pagina actual para navegar entre pagians
-if (btnPrevPage) {
-  btnPrevPage.addEventListener("click", () => {
-    ProductosPorPagina(paginaActual - 1);
-  });
-}
+// ================================================================================
+// VENTANA CARRITO
 
-if (btnNextPage) {
-  btnNextPage.addEventListener("click", () => {
-    ProductosPorPagina(paginaActual + 1);
-  });
-}
+function actualizarResumenPedido() {
 
-// CARRITO
+    const total = calcularTotal();
+    const unidades = calcularUnidades();
 
-// Clave utilizada para persistir el carrito en LocalStorage
-const storageCarrito = "localStorage";
+    const totalCarrito = document.querySelector(".cart-summary-total");
+    const metaCarrito = document.querySelector(".cart-summary-meta");
 
-function leerCarrito() {
-  try {
-    // Recupera el carrito guardado en LocalStorage
-    const guardado = localStorage.getItem(storageCarrito);
-    const parsed = guardado ? JSON.parse(guardado) : [];
-    // VALIDACION: Asegura que el valor parseado sea un array para evitar fallos en .map() o .find()
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (error) {
-    console.error("Error al leer el carrito de localStorage:", error);
-    // Devuelve array vacío para que el resto de la aplicación siga funcionando sin romperse
-    return [];
-  }
-}
+    const totalTicket = document.getElementById("price");
 
-function guardarCarrito() {
-  try {
-    // Serializa y guarda el estado actual del carrito en LocalStorage
-    localStorage.setItem(storageCarrito, JSON.stringify(carrito));
-  } catch (error) {
-    console.error("Error al guardar el carrito de localStorage:", error);
-  }
-}
+    if (totalCarrito) {
+        totalCarrito.textContent = `$${total.toFixed(2)}`;
+    }
 
-// Variable principal del carrito inicializada desde LocalStorage
-let carrito = leerCarrito();
+    if (metaCarrito) {
+        metaCarrito.textContent = `Total | ${unidades} Unidades`;
+    }
 
-// Delegación de eventos para agregar productos al carrito desde cualquier botón .btn-add
-document.addEventListener("click", (e) => {
-  const btn = e.target.closest(".btn-add");
-  if (!btn) return;
-
-  const idProducto = Number(btn.dataset.id);
-  agregarCarrito(idProducto);
-});
-
-function agregarCarrito(idProducto) {
-  // Busca el producto seleccionado en el catálogo cargado en memoria
-  const p = listaProductos.find((prod) => Number(prod.id) === Number(idProducto));
-  // VALIDACION: Si no existe el producto en listaProductos, corta para no agregar datos inválidos
-  if (!p) return;
-
-  // Verifica si el producto ya está en el carrito para sumar cantidad o crear un nuevo ítem
-  const existente = carrito.find((item) => Number(item.id) === Number(p.id));
-  if (existente) {
-    existente.cantidad += 1;
-  } else {
-    carrito.push({
-      id: p.id,
-      name: p.name,
-      price: p.price,
-      cantidad: 1,
-    });
-  }
-
-  guardarCarrito();
-  mostrarCarrito();
+    if (totalTicket) {
+        totalTicket.textContent = `$${total.toFixed(2)}`;
+    }
 }
 
 function mostrarCarrito() {
@@ -335,27 +445,186 @@ function mostrarCarrito() {
   viewProductsCart.forEach((lista) => {
     lista.innerHTML = contenidoFinal;
   });
+
+  actualizarResumenPedido();
+}
+// ================================================================================
+
+// ================================================================================
+// VENTANA TICKET
+
+
+function actualizarTicket() {
+
+    const nombre = leerNombreUsuario();
+    const total = calcularTotal();
+
+    const fecha = new Date();
+
+    const fechaElemento = document.getElementById("datetime-ticket");
+
+    const numeroTicket = document.getElementById("id-ticket");
+
+    if (fechaElemento) {
+        fechaElemento.textContent = fecha.toLocaleString("es-AR");
+    }
+
+    if (numeroTicket) {
+        numeroTicket.textContent = "M-001";
+    }
+
+    crearMensajePorNombre(nombre);
+
+    actualizarResumenPedido();
 }
 
-// Modifica la cantidad de un ítem del carrito (+1 o -1) y lo elimina si llega a 0
-function cambiarCantidadCarrito(idProducto, delta) {
-  const index = carrito.findIndex((item) => Number(item.id) === Number(idProducto));
-  // VALIDACION: Sale si el producto no se encuentra dentro del carrito
-  if (index === -1) return;
+function imprimirTicket(){
+  const { jsPDF } = window.jspdf;
 
-  const nuevaCantidad = (Number(carrito[index].cantidad) || 1) + delta;
+  const doc = new jsPDF(); 
 
-  if (nuevaCantidad <= 0) {
-    // Elimina el producto del carrito cuando la cantidad baja de 1
-    carrito.splice(index, 1);
-  } else {
-    carrito[index].cantidad = nuevaCantidad;
-  }
+  const cliente = leerNombreUsuario() || "Invitado";
+  const fechaTexto = "2020-20-20";
+  const numeroOrden = "M-001";
 
-  guardarCarrito();
-  mostrarCarrito();
+
+  let y = 22;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(22);
+  doc.text("miga.", 20, y);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.text("Ticket de pedido", 20, y + 6);
+
+  // Número de orden y datos del cliente
+  y += 20;
+  doc.setFontSize(26);
+  doc.text(numeroOrden, 20, y);
+
+  y += 10;
+  doc.setFontSize(11);
+  doc.text(`Cliente: ${cliente}`, 20, y);
+
+  y += 5;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.text(fechaTexto, 20, y);
+
+  // Separador
+  y += 7;
+  doc.setDrawColor(210);
+  doc.line(20, y, 190, y);
+
+  // Detalle de productos
+  y += 10;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text("Detalle:", 20, y);
+
+  y += 8;
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(10.5);
+
+  const idProductos = []
+  
+  carrito.forEach(producto => {
+
+        idProductos.push(producto.id); // Llenamos el array de ids de productos (necesario para crear la venta despues)
+        doc.text(`${producto.name} - ${producto.price}`, 20, y); // 20px derecha y valor del eje y
+
+        // Al terminar la primer iteracion, incrementamos la posicion vertical para evitar solapamiento
+        y += 10;
+    });
+    // Calculamos el valor total del ticket usando reduce
+    const precioTotal = calcularTotal();
+
+    // Separamos verticalmente los productos del total
+    y += 10
+
+    doc.setFontSize(25);
+    doc.text(`TOTAL: $${precioTotal}`, 20, y);
+
+    const fecha = new Date();
+    const nombreTicket = `${STORAGE_USUARIO}_${fecha.toISOString()}`;
+
+    // Imprimimos ticket de venta
+    doc.save(`ticket-${nombreTicket}.pdf`);
+
+    /*
+    // Llamaremos a la funcion para registrar ventas
+    registrarVenta(precioTotal, idProductos);
+    */
 }
 
+
+// ================================================================================
+
+// ----------------------------------------------------------------------
+// EVENTOS
+
+// BOTON MENU - VENTANA BIENVENIDA
+// Verifica que el botón exista en el DOM antes de asociarle el evento de clic
+if (btnMenu) {
+  btnMenu.addEventListener("click", () => {
+    // 1. Obtiene el input de nombre y limpia espacios en blanco a los extremos
+    const inputNombre = document.querySelector(".input-name");
+    const nombre = inputNombre.value.trim();
+
+    // 2. Valida que el nombre no esté vacío; si falta, avisa, enfoca y corta
+    if (!nombre) {
+      alert("Por favor, ingresá tu nombre para continuar.");
+      inputNombre.focus();
+      return;
+    }
+
+    // 3. Guarda el nombre del cliente y limpia la marca de pedido confirmado anterior
+    guardarNombreUsuario(nombre);
+    localStorage.removeItem(STORAGE_PEDIDO_CONFIRMADO);
+
+    // 4. Refresca el saludo visible y navega hacia la vista del menú
+    actualizarSaludo();
+    window.location.href = "menu.html";
+  });
+}
+
+// ----------------------------------------------------------------------
+
+// BOTONES DE PAGINACION - VENTANA MENU
+// Verifica que exista el botón anterior y retrocede una página si es posible
+if (btnPrevPage) {
+  btnPrevPage.addEventListener("click", () => {
+    ProductosPorPagina(paginaActual - 1);
+  });
+}
+
+// Verifica que exista el botón siguiente y avanza una página si es posible
+if (btnNextPage) {
+  btnNextPage.addEventListener("click", () => {
+    ProductosPorPagina(paginaActual + 1);
+  });
+}
+
+// BOTONES DE AGREGAR O QUITAR DEL CARRITO - VENTANA MENU
+// Delegación de eventos para agregar productos al carrito desde cualquier botón .btn-add
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".btn-add");
+  if (!btn) return;
+
+  const idProducto = Number(btn.dataset.id);
+  agregarCarrito(idProducto);
+});
+
+document.addEventListener("click", (e) => {
+  const btnRemove = e.target.closest(".btn-remove");
+  if (!btnRemove) return;
+
+  quitarDelCarrito(Number(btnRemove.dataset.id));
+});
+
+// ----------------------------------------------------------------------
+
+// BOTONES DE INCREMENTAR O REDUCIR PRODUCTO EN CARRITO - VENTANA CARRITO
 // Delegación de eventos para incrementar (+) o decrementar (-) cantidades en las tarjetas del carrito
 document.addEventListener("click", (e) => {
   const btnInc = e.target.closest(".btn-qty-inc");
@@ -370,121 +639,77 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// TICKET
-
-
-
-
-
-
-
-// MOSTRAR VISTAS - En unico Archivo HTML
-
-
-function mostrarVista(nombreVista) {
-  // VALIDACION: Si la vista solicitada no está permitida en viewApp, vuelve a "welcome" por defecto
-  const vistaActiva = viewApp.includes(nombreVista) ? nombreVista : "welcome";
-
-  // Activa solo la sección correspondiente a la vista seleccionada y oculta las demás
-  secciones.forEach((sec) => {
-    sec.classList.toggle("active", sec.id === `view-${vistaActiva}`);
-  });
-
-  // Marca el botón activo para accesibilidad y estilos según data-vista
-  botones.forEach((btn) => {
-    if (btn.dataset.vista === vistaActiva) {
-      btn.setAttribute("aria-current", "page");
-    } else {
-      btn.removeAttribute("aria-current");
+// BOTON DE CONFIRMAR PEDIDO - VENTANA CARRITO
+// Verifica que exista el botón de confirmar antes de registrar el evento
+if (btnConfirmar) {
+  btnConfirmar.addEventListener("click", () => {
+    // 1. Impide confirmar si el carrito está vacío
+    if (carrito.length === 0) {
+      alert("No podés confirmar un pedido vacío.");
+      return;
     }
+
+    // 2. Marca el pedido como confirmado en localStorage y pasa a la pantalla del ticket
+    localStorage.setItem(STORAGE_PEDIDO_CONFIRMADO, "true");
+    window.location.href = "ticket.html";
   });
+}
 
-  // Actualiza el hash de la URL sin recargar la página si es distinto al actual
-  const nuevoHash = `#${vistaActiva}`;
-  if (window.location.hash !== nuevoHash) {
-    history.pushState(null, "", nuevoHash);
+// ----------------------------------------------------------------------
+
+//  BOTON DE DESCARGAR TICKET EN PDF - VENTANA TICKET
+document.addEventListener("click", (e) => {
+  const btnDownload = e.target.closest(".btn-download");
+  if (btnDownload) {
+    imprimirTicket();
   }
-}
-
-// Asocia el clic de cada botón de navegación a su vista correspondiente (data-vista)
-botones.forEach((btn) => {
-  btn.addEventListener("click", () => mostrarVista(btn.dataset.vista));
 });
 
-// Escucha los botones Atrás/Adelante del historial para mostrar la vista del hash actual
-window.addEventListener("popstate", () => {
-  const vistaDesdeUrl = window.location.hash.replace("#", "");
-  mostrarVista(vistaDesdeUrl);
-});
+// BOTON DE VOLVER A MENÚ/GENERAR NUEVO PEDIDO - VENTANA TICKET
+// Verifica que exista el botón finalizar/nuevo pedido antes de asociar el clic
+if (btnNuevoPedido) {
+  btnNuevoPedido.addEventListener("click", () => {
+    // 1. Vacía el array en memoria y elimina las claves guardadas en localStorage
+    carrito = [];
+    localStorage.removeItem(storageCarrito);
+    localStorage.removeItem("localStorage");
+    localStorage.removeItem(STORAGE_PEDIDO_CONFIRMADO);
+    localStorage.removeItem(STORAGE_USUARIO);
 
-// Carga inicial según el hash actual o "welcome" por defecto
-mostrarVista(window.location.hash.replace("#", ""));
-
-
-// CARRITO (FALTA IMPRIMIR PDF)
-const boton_imprimir = document.getElementById("boton-imprimir");
-boton_imprimir.addEventListener("click", imprimirTicket);
-
-function imprimirTicket(){
-  const { jsPDF } = window.jspdf;
-
-  const doc = new jsPDF(); 
-
-  let y = 20;
-  doc.setFontSize(20);
-  doc.text("TICKET DE TU COMPRA: ", 20, y );
-  y += 20;
-
-  doc.setFontSize(14);
-  /*
-  storageCarrito.forEach(producto => {
-
-        idProductos.push(producto.id); // Llenamos el array de ids de productos (necesario para crear la venta despues)
-
-        doc.text(`${producto.name} - ${producto.price}`, 20, y); // 20px derecha y valor del eje y
-
-        // Al terminar la primer iteracion, incrementamos la posicion vertical para evitar solapamiento
-        y += 10;
-    });
-    // Calculamos el valor total del ticket usando reduce
-    const precioTotal = carrito.reduce((acumulador, producto) => acumulador + parseInt(producto.price), 0);
-
-    // Separamos verticalmente los productos del total
-    y += 10
-
-    doc.text(`TOTAL: $${precioTotal}`, 20, y);
-
-    const fecha = new Date();
-    const nombreTicket = `${nombreUsuario}_${fecha.toISOString()}`;
-
-    // Imprimimos ticket de venta
-    doc.save(`ticket-${nombreTicket}.pdf`);
-
-    // Llamaremos a la funcion para registrar ventas
-    registrarVenta(precioTotal, idProductos);
-    */
+    // 2. Persiste el carrito vacío y devuelve al usuario a la bienvenida
+    guardarCarrito();
+    window.location.href = "welcome.html";
+  });
 }
 
-// TICKET (FALTA IMPRIMIR PDF)
+// ================================================================================
 
-
+// ================================================================================
 // INIT
 
 function init() {
-  // Sincroniza el input de nombre, rellena el valor guardado si existe y actualiza saludos/ticket
-  syncInputNombre();
-  // Dibuja el carrito inicial con lo persistido en localStorage (y se refresca al cargar productos)
-  mostrarCarrito();
 
-  // VALIDACION: Solo activa el router todas las vistas existen en secciones con clase .screen-view en el DOM
-  if (document.querySelector(".screen-view")) {
-    mostrarVista(window.location.hash.replace("#", ""));
-  }
+    // Primero verifica si el usuario puede acceder a esta página.
+    if (!controlarAcceso()) return;
 
-  // VALIDACION: Solo pide productos al backend si existe el contenedor .view-products en la vista actual
-  if (document.querySelector(".view-products")) {
+    // Sincroniza el nombre y los saludos.
+    syncInputNombre();
+
+    // Actualiza el saludo del usuario.
+    actualizarSaludo();
+
+    // Dibuja el carrito guardado.
+    mostrarCarrito();
+
+    // Carga productos
     cargarProductos();
-  }
+    
+    // Actualiza el ticket únicamente si estamos en ticket.html.
+    actualizarTicket();
+
+
 }
+
+// ================================================================================
 
 init()

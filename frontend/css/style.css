@@ -41,29 +41,21 @@ button:hover{
   cursor: pointer;
 }
 
-.screen-view {
-    display: none;
-}
 
-
-.screen-view.active{
-    flex: 1;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 20px 50px;
-}
-
-main,
-.main,
-.screen-view.active {
-    flex: 1;
+.screen-menu {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 50px;
+  min-height: 70vh; /* en vez de height: 70vh fijo */
 }
 
 .main {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 20px 50px;
-    min-height: 70vh; /* en vez de height: 70vh fijo */
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 20px 50px;
+  min-height: 70vh; /* en vez de height: 70vh fijo */
 }
 
 /* HEADER */
@@ -88,29 +80,36 @@ header {
 
 }
 
-.nav-position {
+.nav-position, .nav-position-active {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
+.nav-position-active span {
+    display: flex;
+    height: 25px;
+    width: 28px;
+    border-radius: 14px;
+    justify-content: center;
+    padding-top: 2.5px;
+    margin-right: 10px;
+    color: var(--text);
+    background-color: var(--nav-position-activate);
+}
+
 .nav-position span {
     display: flex;
     height: 25px;
-    width: 25px;
+    width: 28px;
     border-radius: 14px;
     justify-content: center;
+    padding-top: 2.5px;
     margin-right: 10px;
     background-color: var(--nav-position-inactive);
 }
 
-.nav-position button {
-    border: none;
-    background: none;
-    font-size: 16px;
-}
-
-.nav-position a {
+.nav-position a, .nav-position-active a {
     text-decoration: none;
     color: black;
 }
@@ -121,15 +120,6 @@ header {
     color: var(--text-btn-admin-panel);
     background: none;
     border: none;
-}
-
-/* MAIN */
-
-.main {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 20px 50px;
-    height: 70vh;
 }
 
 
@@ -168,15 +158,8 @@ header {
 
 /* VISTA DEL MENÚ*/
 
-.right-block {
-    display: flex;
-    flex-direction: column;
-    margin-right: 60px;
-    width: 66vw;
-}
-
 .top {
-    display: flex;
+    display: flex; 
     align-items: center;
     justify-content: space-between;
     padding-bottom: 20px;
