@@ -421,7 +421,7 @@ window.addEventListener("popstate", () => {
 mostrarVista(window.location.hash.replace("#", ""));
 
 
-// CARRITO (FALTA IMPRIMIR PDF)
+// TICKET (FALTA IMPRIMIR PDF)
 
 
 // INIT
