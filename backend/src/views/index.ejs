@@ -4,12 +4,26 @@
 
 
     <main>
+
+        <section class="botones-filtrado">
+                <!-- Botones para mostrar productos segun su disponibilidad -->
+            <button id="btn-todos" type="button">
+                Mostrar todos
+            </button>
+            <button id="btn-productos-activos" type="button">
+                Mostrar solo activos
+            </button>
+            <button id="btn-productos-inactivos" type="button">
+                Mostrar solo inactivos
+            </button>
+        </section>
+
         <!-- Contenedor de los productos que vengan de /api/products -->
         <section id="contenedor-productos">
 
             <!-- Ahora desde EJS ya puedo iterar directamente aca, sin necesidad de js adicional, el array de productos -->
              <% listaProductos.forEach(producto => { %>
-                <div class="card-producto">
+                <div class="card-producto <%= producto.active == 1 ? 'producto-activo' : 'producto-inactivo' %>">
 
                     <img class="card-img" src="<%=producto.image%>" alt="<%=producto.name%>">
                     
@@ -18,11 +32,13 @@
                     <p>Id: <%=producto.id%></p>
                     
                     <p>$ <%=producto.price%></p>
+
                 </div>
              <% }) %>
              
         </section>
     </main>
+    <script src="/js/index.js"></script>
 
 
 <%- include("partials/footer.ejs") %>

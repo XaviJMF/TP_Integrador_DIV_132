@@ -22,6 +22,10 @@
     --mensaje-rojo: #8f3025;
     --fondo-rojo: #f9e9e5;
     --borde-rojo: #edc9c0;
+
+        /* Productos */
+    --product-active: #c9b181;
+    --product-inactive: #cf6944;
 }
 
 * {
@@ -296,6 +300,27 @@ main {
     border-radius: 7px;
 }
 
+/* PRODUCTOS ACTIVOS */
+.producto-activo {
+    background-color: var(--product-active);
+    border: 1px solid var(--border-color);
+}
+
+/* PRODUCTOS INACTIVOS */
+.producto-inactivo {
+    background-color: var(--product-inactive);
+    border: 1px solid var(--title-store);
+    opacity: 0.75;
+}
+
+/* botones filtro */
+.botones-filtrado {
+    
+    display: flex;
+    gap: 15px; /* Separación entre botones */
+    margin-bottom: 20px; /* Separación con los productos */
+    align-items: center;
+}
 
 /*=========================
     FORMULARIOS GET

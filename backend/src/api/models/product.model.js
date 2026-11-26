@@ -18,7 +18,7 @@ const selectActiveProducts = () => {
 // Traer todos los productos
 const selectAllProducts = () => {
     // Optimizacion 2: Solo devolvemos los campos necesarios, no todo
-    const sql = "SELECT id, name, price, image FROM products";
+    const sql = "SELECT id, name, price, image, active FROM products";
     return connection.query(sql);
 };
 
