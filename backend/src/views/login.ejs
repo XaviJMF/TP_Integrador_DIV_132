@@ -13,6 +13,12 @@
 		<input type="password" name="password" id="passwordUser" required>
 
 		<input type="submit" value="Login">
+
+		<!-- Botón para autocompletar credenciales de prueba -->
+		<button type="button" id="btn-autocompletar">
+    		Autocompletar usuario de prueba
+		</button>
+
 	</form>
 
 	<!-- Si renderizo la plantilla login enviandole un error, se muestra aca -->
@@ -20,5 +26,6 @@
 		<p class="mensaje error centrado"> <%= error %> </p>
 	<% } %>
     
+	<script src="/js/login.js"></script>
 </main>
 <%- include("partials/footer.ejs") %>
