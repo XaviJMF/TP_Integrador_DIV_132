@@ -2,21 +2,53 @@ import connection from "../database/db.js";
 import ProductModels from "../models/product.model.js"
 
 ///////////////////
-// GET active products -> Obtener todos los productos activos
+// GET active products -> Obtener productos activos PAGINADOS
+// Ejemplo: /api/products/active?page=2&category=food&search=pan
 export const getActiveProducts = async (req, res) => {
     try {
-        const [rows] = await ProductModels.selectActiveProducts();
+        // 1. Leemos los datos de la URL (req.query siempre trae texto)
+        const limit = 10; // productos por pagina
+        let page = Number(req.query.page); // pasamos a numero
+        const category = req.query.category;
+        const search = req.query.search;
 
-        if (rows.length === 0) {
-            return res.status(404).json({
-                message: "No hay productos activos"
-            });
+        // 2. Si page no es un numero valido o es menor a 1, usamos la pagina 1
+        if (!page || page < 1) {
+            page = 1;
         }
 
+        // 3. Contamos cuantos productos activos hay en total
+        const [filas] = await ProductModels.countActiveProducts(category, search);
+        const total = filas[0].total;
 
+        // 4. Calculamos el total de paginas (division entera + 1 si sobran productos)
+        let totalPages = (total / limit) | 0;
+        if (total % limit !== 0) {
+            totalPages = totalPages + 1;
+        }
+        if (totalPages < 1) {
+            totalPages = 1;
+        }
+
+        // 5. Si piden una pagina que no existe, usamos la ultima
+        if (page > totalPages) {
+            page = totalPages;
+        }
+
+        // 6. Calculamos cuantos productos saltear y traemos solo los de esa pagina
+        const offset = (page - 1) * limit;
+        const [rows] = await ProductModels.selectActiveProducts(limit, offset, category, search);
+
+        // 7. Si no hay resultados NO es un error: devolvemos 200 con la lista vacia
         res.status(200).json({
-            payload: rows
-        })
+            payload: rows,
+            pagination: {
+                page: page,
+                limit: limit,
+                total: total,
+                totalPages: totalPages
+            }
+        });
 
     } catch (error) {
         console.log("Error obteniendo productos activos: ", error);

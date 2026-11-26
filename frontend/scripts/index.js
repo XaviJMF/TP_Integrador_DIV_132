@@ -1,11 +1,11 @@
 // ================================================================================
 // VARIABLES GLOBALES
 
-// ARRAY DE PRODUCTOS
-let listaProductos = []
+// ARRAY DE PRODUCTOS (solo los de la página actual: el backend filtra y pagina)
+let listaProductos = [];
 // VARIABLES PARA PAGINACION
 let paginaActual = 1;
-const productosPorPagina = 10; // 2 filas x 5 columnas
+let totalPaginas = 1; // total de páginas que informa el backend (el backend pagina de a 10)
 
 // VARIABLES EN LocalStorage
 // PEDIDO CONFIRMADO?
@@ -16,7 +16,6 @@ const STORAGE_USUARIO = "username";
 const storageCarrito = "localStorage";
 
 // BOTONES
-const btnMenu = document.getElementById("btn-menu");
 // BOTONES DE LA PAGINACION
 const btnPrevPage = document.getElementById("btn-prev-page");
 const btnNextPage = document.getElementById("btn-next-page");
@@ -25,8 +24,20 @@ const btnConfirmar = document.querySelector(".btn-confirm-order");
 // BOTON DE GENERAR NUEVO PEDIDO
 const btnNuevoPedido = document.querySelector(".btn-finish");
 
+const btnCambiarNombre = document.getElementById("btn-change-name")
+
 const pageInfo = document.getElementById("page-info");
 
+const inputFiltro = document.querySelector(".input-filter");
+const botonesCategoria = document.querySelectorAll(".catalog button");
+// Categoría activa por defecto
+let categoriaActiva = document.querySelector(".btn-category-active")?.value ?? "";
+let textoBusqueda = (document.querySelector(".input-filter")?.value ?? "").toLowerCase().trim();
+
+
+// Clave donde se guarda la preferencia de tema
+const STORAGE_TEMA = "tema";
+const btnTema = document.getElementById("btn-theme");
 
 // Variable principal del carrito inicializada desde LocalStorage
 let carrito = leerCarrito();
@@ -102,7 +113,8 @@ function pedidoConfirmado() {
 // Valida si el usuario puede permanecer en la vista actual o lo redirige según su estado
 function controlarAcceso() {
   // 1. Extrae el nombre del archivo HTML actual desde la ruta de la URL
-  const pagina = window.location.pathname.split("/").pop();
+  const rawPage = window.location.pathname.split("/").pop();
+  const pagina = rawPage === "" ? "welcome.html" : rawPage; 
 
   // 2. Consulta el estado actual de registro de nombre y de confirmación de pedido
   const nombreValido = usuarioRegistrado();
@@ -110,19 +122,19 @@ function controlarAcceso() {
 
   // 3. Si no hay nombre guardado y no está en welcome.html, redirige a bienvenida y cancela el inicio
   if (!nombreValido && pagina !== "welcome.html") {
-    window.location.replace("welcome.html");
+    window.location.replace("/welcome.html");
     return false;
   }
 
   // 4. Si el pedido ya está confirmado y está en una ruta distinta de ticket.html o welcome.html, fuerza ticket.html
   if (confirmado && pagina !== "ticket.html" && pagina !== "welcome.html") {
-    window.location.replace("ticket.html");
+    window.location.replace("/ticket.html");
     return false;
   }
 
   // 5. Si el pedido no está confirmado y se intenta entrar a ticket.html, redirige a carrito.html
   if (!confirmado && pagina === "ticket.html") {
-    window.location.replace("carrito.html");
+    window.location.replace("/carrito.html");
     return false;
   }
 
@@ -178,6 +190,7 @@ function agregarCarrito(idProducto) {
       id: p.id,
       name: p.name,
       price: p.price,
+      image: p.image, // se guarda para poder dibujar el carrito sin volver a pedir el catálogo
       cantidad: 1,
     });
   }
@@ -185,7 +198,7 @@ function agregarCarrito(idProducto) {
   // 4. Guarda el carrito en localStorage y vuelve a dibujar carrito y grilla de productos
   guardarCarrito();
   mostrarCarrito();
-  ProductosPorPagina(paginaActual);
+  dibujarProductos();
 }
 
 // Elimina por completo un producto del carrito por ID y sincroniza las vistas
@@ -199,7 +212,7 @@ function quitarDelCarrito(idProducto) {
 
   // 3. Si existe la grilla de productos en la vista actual, redibuja la página para ocultar "Quitar"
   if (document.querySelector(".view-products")) {
-    ProductosPorPagina(paginaActual);
+    dibujarProductos();
   }
 }
 
@@ -225,6 +238,21 @@ function cambiarCantidadCarrito(idProducto, delta) {
   guardarCarrito();
   mostrarCarrito();
 }
+
+// BOTONES DE REINICIAR / CAMBIAR NOMBRE - VISTAS CLIENTE
+function reiniciarSesionCliente() {
+  // 1. Vacía el array en memoria y elimina las claves guardadas en localStorage
+  carrito = [];
+  localStorage.removeItem(storageCarrito);
+  localStorage.removeItem("localStorage");
+  localStorage.removeItem(STORAGE_PEDIDO_CONFIRMADO);
+  localStorage.removeItem(STORAGE_USUARIO);
+
+  // 2. Persiste el carrito vacío y devuelve al usuario a la bienvenida
+  guardarCarrito();
+  window.location.href = "/welcome.html";
+}
+
 // ================================================================================
 
 // ================================================================================
@@ -309,69 +337,66 @@ if (btnMenu) {
 
 */
 
-// VISTA DE MENU
-// Solicita el catálogo al backend, guarda la lista en memoria y dibuja la vista inicial
-async function cargarProductos() {
-  try {
-    // 1. Pide el listado de productos al endpoint de la API
-    const respuesta = await fetch("http://localhost:3000/api/products/");
+// ================================================================================
 
-    // 2. Verifica que el estado HTTP sea correcto (200-299) antes de leer el JSON
+// VENTANA DE PRODUCTOS
+// Lee la categoría activa y el texto del buscador, y pide la página 1 al backend
+function filtrarProductos() {
+  // 1. Lee la categoría del botón que tiene "-active" en su clase (usa data-category del HTML)
+  const btnActivo = document.querySelector(".btn-category-active");
+  categoriaActiva = btnActivo ? (btnActivo.dataset.category || "").toLowerCase().trim() : "";
+
+  // 2. Lee el texto escrito en el input de búsqueda
+  textoBusqueda = inputFiltro ? inputFiltro.value.toLowerCase().trim() : "";
+
+  // 3. Al cambiar un filtro se vuelve a la página 1
+  cargarPagina(1);
+}
+
+// Pide al backend la página indicada (ya filtrada y con solo productos activos) y la dibuja
+async function cargarPagina(pagina) {
+  try {
+    // 1. Arma la URL con la página y, si hay, la categoría y la búsqueda
+    let url = `http://localhost:3000/api/products/active?page=${pagina}`;
+    if (categoriaActiva) {
+      url += `&category=${categoriaActiva}`;
+    }
+    if (textoBusqueda) {
+      url += `&search=${encodeURIComponent(textoBusqueda)}`;
+    }
+
+    // 2. Pide la página al backend
+    const respuesta = await fetch(url);
+
+    // 3. Verifica que el estado HTTP sea correcto (200-299) antes de leer el JSON
     if (!respuesta.ok) {
       throw new Error(`Error HTTP: ${respuesta.status}`);
     }
 
-    // 3. Convierte la respuesta a objeto y asegura que listaProductos sea un array
+    // 4. Guarda los productos de la página y los datos de paginación que informa el backend
     const data = await respuesta.json();
     listaProductos = Array.isArray(data.payload) ? data.payload : [];
+    paginaActual = data.pagination.page;
+    totalPaginas = data.pagination.totalPages;
 
-    // 4. Renderiza la primera página de productos y sincroniza la vista del carrito
-    ProductosPorPagina(1);
-    mostrarCarrito();
+    // 5. Dibuja las tarjetas y actualiza los botones de paginación
+    dibujarProductos();
+    actualizarControlesPaginacion();
   } catch (error) {
-    // 5. Informa en consola si falla la red, el servidor o el parseo del JSON
+    // 6. Informa en consola si falla la red, el servidor o el parseo del JSON
     console.error("No se pudieron cargar los productos:", error);
   }
 }
 
-// Calcula el rango de productos de la página indicada y dibuja sus tarjetas en .view-products
-function ProductosPorPagina(pagina) {
+// Dibuja en .view-products los productos de la página actual (sin pedir nada al backend)
+function dibujarProductos() {
   // 1. Busca el contenedor de productos y limpia su contenido anterior
   const viewProducts = document.querySelector(".view-products");
   if (!viewProducts) return;
   viewProducts.innerHTML = "";
 
-  // 2. Calcula el total de páginas dividiendo por productosPorPagina y truncando decimales con | 0
-  let totalPaginas = (listaProductos.length / productosPorPagina) | 0;
-
-  // 3. Agrega una página extra si queda algún resto de productos y garantiza al menos 1 página
-  if (listaProductos.length % productosPorPagina !== 0) {
-    totalPaginas += 1;
-  }
-  if (totalPaginas < 1) {
-    totalPaginas = 1;
-  }
-
-  // 4. Limita la página solicitada para que no baje de 1 ni supere totalPaginas
-  let paginaSolicitada = pagina;
-  if (paginaSolicitada < 1) {
-    paginaSolicitada = 1;
-  }
-  if (paginaSolicitada > totalPaginas) {
-    paginaSolicitada = totalPaginas;
-  }
-
-  // 5. Guarda la página activa y actualiza texto y estado de los botones de paginación
-  paginaActual = paginaSolicitada;
-  actualizarControlesPaginacion(totalPaginas);
-
-  // 6. Recorta el sub-array correspondiente a la página actual usando inicio y fin
-  const inicio = (paginaActual - 1) * productosPorPagina;
-  const fin = inicio + productosPorPagina;
-  const productosPagina = listaProductos.slice(inicio, fin);
-
-  // 7. Recorre los productos de la página, agrega botón "Quitar" si ya está en carrito y suma la card al DOM
-  productosPagina.forEach((p) => {
+  // 2. Recorre los productos de la página, agrega botón "Quitar" si ya está en carrito y suma la card al DOM
+  listaProductos.forEach((p) => {
     const itemEnCarrito = carrito.find((item) => Number(item.id) === Number(p.id));
     const btnQuitar = itemEnCarrito
       ? `<button type="button" data-id="${p.id}" class="btn-remove">Quitar</button>`
@@ -391,8 +416,8 @@ function ProductosPorPagina(pagina) {
 }
 
 // Actualiza el indicador de página y habilita o deshabilita los botones anterior y siguiente
-function actualizarControlesPaginacion(totalPaginas) {
-  // 1. Escribe el texto "Página X de Y" si existe el elemento pageInfo
+function actualizarControlesPaginacion() {
+  // 1. Escribe el texto "Página X de Y" (el total lo informa el backend) si existe el elemento pageInfo
   if (pageInfo) {
     pageInfo.textContent = `Página ${paginaActual} de ${totalPaginas}`;
   }
@@ -407,6 +432,7 @@ function actualizarControlesPaginacion(totalPaginas) {
     btnNextPage.disabled = paginaActual >= totalPaginas;
   }
 }
+
 // ================================================================================
 
 // ================================================================================
@@ -461,15 +487,11 @@ function mostrarCarrito() {
   const viewProductsCart = document.querySelectorAll(".products-cart");
   if (!viewProductsCart.length) return;
 
-  // 5. Recorre cada ítem del carrito y busca sus datos completos en listaProductos por id
+  // 5. Recorre cada ítem del carrito: el catálogo viene paginado, así que se usan los datos guardados en el propio ítem
   const cardsHtml = carrito
     .map((itemCarrito) => {
-      const producto = listaProductos.find(
-        (p) => Number(p.id) === Number(itemCarrito.id)
-      );
-
-      // 6. Si el producto no está en listaProductos (por ejemplo en vistas donde no se cargó el catálogo), omite esa tarjeta
-      if (!producto) return "";
+      // 6. El ítem del carrito ya tiene id, nombre, precio e imagen
+      const producto = itemCarrito;
 
       // 7. Calcula cantidad, precio unitario y subtotal formateado a 2 decimales
       const cantidad = Number(itemCarrito.cantidad) || 1;
@@ -544,7 +566,7 @@ function imprimirTicket(){
   let y = 22;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(22);
-  doc.text("miga.", 20, y);
+  doc.text("PERCHA", 20, y);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
@@ -616,28 +638,19 @@ function imprimirTicket(){
 // ----------------------------------------------------------------------
 // EVENTOS
 
-// BOTON MENU - VENTANA BIENVENIDA
-// Verifica que el botón exista en el DOM antes de asociarle el evento de clic
-if (btnMenu) {
-  btnMenu.addEventListener("click", () => {
-    // 1. Obtiene el input de nombre y limpia espacios en blanco a los extremos
-    const inputNombre = document.querySelector(".input-name");
-    const nombre = inputNombre.value.trim();
+// FORMULARIO - VENTANA BIENVENIDA
+// Busca el formulario de bienvenida; si no existe (otras vistas) no hace nada
+const formBienvenida = document.getElementById("welcome-form");
+if (formBienvenida) {
+  // El evento "submit" solo se dispara si el navegador validó el input (required y pattern)
+  formBienvenida.addEventListener("submit", () => {
+    // 1. Guarda el nombre del cliente (guardarNombreUsuario ya le quita los espacios sobrantes)
+    guardarNombreUsuario(document.querySelector(".input-name").value);
 
-    // 2. Valida que el nombre no esté vacío; si falta, avisa, enfoca y corta
-    if (!nombre) {
-      alert("Por favor, ingresá tu nombre para continuar.");
-      inputNombre.focus();
-      return;
-    }
-
-    // 3. Guarda el nombre del cliente y limpia la marca de pedido confirmado anterior
-    guardarNombreUsuario(nombre);
+    // 2. Limpia la marca de pedido confirmado de un pedido anterior
     localStorage.removeItem(STORAGE_PEDIDO_CONFIRMADO);
 
-    // 4. Refresca el saludo visible y navega hacia la vista del menú
-    actualizarSaludo();
-    window.location.href = "menu.html";
+    // 3. No hace falta navegar: el action="menu.html" del formulario nos lleva al menú
   });
 }
 
@@ -717,22 +730,67 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// BOTON DE VOLVER A MENÚ/GENERAR NUEVO PEDIDO - VENTANA TICKET
-// Verifica que exista el botón finalizar/nuevo pedido antes de asociar el clic
 if (btnNuevoPedido) {
-  btnNuevoPedido.addEventListener("click", () => {
-    // 1. Vacía el array en memoria y elimina las claves guardadas en localStorage
-    carrito = [];
-    localStorage.removeItem(storageCarrito);
-    localStorage.removeItem("localStorage");
-    localStorage.removeItem(STORAGE_PEDIDO_CONFIRMADO);
-    localStorage.removeItem(STORAGE_USUARIO);
+  btnNuevoPedido.addEventListener("click", reiniciarSesionCliente);
+}
 
-    // 2. Persiste el carrito vacío y devuelve al usuario a la bienvenida
-    guardarCarrito();
-    window.location.href = "welcome.html";
+if (btnCambiarNombre) {
+  btnCambiarNombre.addEventListener("click", reiniciarSesionCliente);
+}
+
+window.addEventListener("pageshow", () => {
+  controlarAcceso();
+});
+
+if (inputFiltro) {
+  inputFiltro.addEventListener("input", () => {
+    filtrarProductos();
   });
 }
+
+botonesCategoria.forEach((boton) => {
+  boton.addEventListener("click", () => {
+    // 1. Quita "-active" de todos los botones dejando la clase base ("btn-category")
+    botonesCategoria.forEach((b) => {
+      b.className = b.className.replace("-active", "");
+    });
+
+    // 2. Agrega "-active" al botón clickeado (queda "btn-category-active")
+    if (!boton.className.endsWith("-active")) {
+      boton.className = `${boton.className}-active`;
+    }
+
+    // 3. Filtra según el botón activo y el input
+    filtrarProductos();
+  });
+});
+
+// ================================================================================
+
+// ================================================================================
+// MODO OSCURO / CLARO
+
+// Aplica el tema ("dark" o "light") en <html> y actualiza el texto del botón
+function aplicarTema(tema) {
+  document.documentElement.setAttribute("data-theme", tema);
+  if (btnTema) {
+    btnTema.textContent = tema === "dark" ? "Modo claro" : "Modo oscuro";
+  }
+}
+
+// Alterna entre claro y oscuro y guarda la elección en localStorage
+function cambiarTema() {
+  const nuevo = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  localStorage.setItem(STORAGE_TEMA, nuevo);
+  aplicarTema(nuevo);
+}
+
+if (btnTema) {
+  btnTema.addEventListener("click", cambiarTema);
+}
+
+// Al cargar la página, usa el tema guardado (claro por defecto)
+aplicarTema(localStorage.getItem(STORAGE_TEMA) || "light");
 
 // ================================================================================
 
@@ -753,8 +811,10 @@ function init() {
     // Dibuja el carrito guardado.
     mostrarCarrito();
 
-    // Carga productos
-    cargarProductos();
+    // Carga la primera página de productos (solo existe en el menú; el carrito usa los datos guardados)
+    if (document.querySelector(".view-products")) {
+      filtrarProductos();
+    }
     
     // Actualiza el ticket únicamente si estamos en ticket.html.
     actualizarTicket();

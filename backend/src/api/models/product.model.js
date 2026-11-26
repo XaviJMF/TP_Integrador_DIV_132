@@ -6,10 +6,51 @@ import connection from "../database/db.js";
 
 
 /////////////////////////////
-// Traer productos activos
-const selectActiveProducts = () => {
-    const sql = "SELECT id, name, price, image FROM products WHERE products.active = 1";
-    return connection.query(sql);
+// Traer una pagina de productos activos
+// limit = cuantos productos devolver | offset = cuantos productos saltear
+const selectActiveProducts = (limit, offset, category, search) => {
+    let sql = "SELECT id, name, price, image, category FROM products WHERE active = 1";
+    let valores = [];
+
+    // Si llega una categoria, filtramos por ella
+    if (category) {
+        sql += " AND category = ?";
+        valores.push(category);
+    }
+
+    // Si llega texto de busqueda, filtramos los nombres que lo contengan
+    if (search) {
+        sql += " AND name LIKE ?";
+        valores.push("%" + search + "%");
+    }
+
+    sql += " ORDER BY id LIMIT ? OFFSET ?";
+    valores.push(limit);
+    valores.push(offset);
+
+    return connection.query(sql, valores);
+}
+
+
+
+/////////////////////////////
+// Contar cuantos productos activos hay en total (con los mismos filtros)
+// Sirve para saber cuantas paginas hay
+const countActiveProducts = (category, search) => {
+    let sql = "SELECT COUNT(*) AS total FROM products WHERE active = 1";
+    let valores = [];
+
+    if (category) {
+        sql += " AND category = ?";
+        valores.push(category);
+    }
+
+    if (search) {
+        sql += " AND name LIKE ?";
+        valores.push("%" + search + "%");
+    }
+
+    return connection.query(sql, valores);
 }
 
 
@@ -18,7 +59,7 @@ const selectActiveProducts = () => {
 // Traer todos los productos
 const selectAllProducts = () => {
     // Optimizacion 2: Solo devolvemos los campos necesarios, no todo
-    const sql = "SELECT id, name, price, image, active FROM products";
+    const sql = "SELECT id, name, price, image, category, active FROM products";
     return connection.query(sql);
 };
 
@@ -70,5 +111,6 @@ export default {
     insertNewProduct,
     updateProduct,
     deleteProduct,
-    selectActiveProducts
+    selectActiveProducts,
+    countActiveProducts
 }

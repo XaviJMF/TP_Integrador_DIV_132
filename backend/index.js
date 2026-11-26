@@ -14,9 +14,11 @@ import session from "express-session";
 const { port, session_key } = environments;
 const app = express(); // Creamos una instancia de aplicacion de express en app
 const PORT = port;
+const frontendPath = join(__dirname, "../frontend");
 
 app.set("view engine", "ejs"); // Configuramos EJS como motor de plantillas
 app.set("views", join(__dirname, "src/views")); // Apuntamos a la carpeta de las vistas de EJS
+
 
 /*=====================
 	middlewares -> Funciones que se ejecutan entre la req y la res
@@ -66,7 +68,13 @@ app.use("/dashboard", viewRoutes); // Redirigimos las consultas a /dashboard a l
 // Rutas autenticacion /login 
 app.use("/", authRoutes);
 
+// 1. Sirve automáticamente welcome.html, menu.html, carrito.html, ticket.html, css/, js/ e img/
+app.use(express.static(frontendPath));
 
+// 2. Hace que entrar a http://localhost:3000/ abra directamente welcome.html
+app.get("/", (req, res) => {
+  res.sendFile(path.join(frontendPath, "welcome.html"));
+});
 
 
 app.listen(PORT,() => {

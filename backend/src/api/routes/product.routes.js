@@ -1,6 +1,6 @@
 import { Router } from "express"; //importamos router
 import {validateId, validateProduct } from "../middlewares/middleware.js";
-import { createProduct, getAllProducts, getProductById, modifyProduct, removeProduct } from "../controllers/product.controllers.js";
+import { createProduct, getActiveProducts, getAllProducts, getProductById, modifyProduct, removeProduct } from "../controllers/product.controllers.js";
 
 const router = Router()
 
@@ -10,6 +10,10 @@ const router = Router()
 
 router.get("/", getAllProducts);
 
+
+/////////////////////
+// GET all active products ->  Obtener los productos activos y por categoria
+router.get("/active", getActiveProducts);
 
 
 ///////////////////

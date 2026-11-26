@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="module" src="js/index.js"></script>
+    <script type="module" src="scripts/index.js"></script>
     <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
     <title>Ticket</title>
 </head>
 <body> 
     <header class="header">
-        <h1 id="title-store">miga.</h1>
+        <section class="logo-sect">
+            <img src="img/favicon.png" alt="" class="icon-img">
+            <h1 id="title-store">PERCHA</h1>
+        </section>
         <div class="navbar">
             <div class="nav-position">
                 <span>1</span>
@@ -22,19 +25,19 @@
             </div>
             <div class="nav-position">
                 <span>3</span>
-                <o>Carrito</o>
+                <p>Carrito</p>
             </div>
             <div class="nav-position-active">
                 <span>4</span>
                 <a>Ticket</a>
             </div>
         </div>
-        <p id="user-greeting"></p>
+            <button type="button" id="btn-theme">Modo oscuro</button>
     </header>
     <main class="main">
             <div class="left-ticket-view">
-                <div class="icon-img">
-                    <img src="img/check-circle-svgrepo-com.svg" alt="" class="img-ticket-view">
+                <div class="icon-img" id="ticket-img">
+                    <img src="img/check.svg" alt="" class="img-ticket-view">
                 </div>
                 <div class="view-msg">
                     <h1 id="user-greetings"></h1>
@@ -49,7 +52,7 @@
                 <div class="modal-ticket">
                     <div class="ticket-top">
                         <div>
-                            <h1>miga.</h1>
+                            <h1>PERCHA</h1>
                             <p>Ticket de pedido</p>
                         </div>
                         <div id="confirmed-block">Confirmado</div>

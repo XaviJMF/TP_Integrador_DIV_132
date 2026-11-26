@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="module" src="js/index.js"></script>
+    <script type="module" src="scripts/index.js"></script>
     <link rel="stylesheet" href="css/style.css">
     <title>Menú</title>
 </head>
 <body>
     <header class="header">
-        <h1 id="title-store">miga.</h1>
+        <section class="logo-sect">
+            <img src="img/favicon.png" alt="" class="icon-img">
+            <h1 id="title-store">PERCHA</h1>
+        </section>
         <div class="navbar">
             <div class="nav-position">
                 <span>1</span>
@@ -27,6 +30,7 @@
                 <span>4</span>
                 <p>Ticket</p>
             </div>
+            <button type="button" id="btn-theme">Modo oscuro</button>
         </div>
         <div>
             <p id="user-greeting"></p>
@@ -38,16 +42,15 @@
     <main class="screen-menu">
             <div class="top">
                 <div>
-                    <p>EL MENÚ</p>
-                    <h1>¿Que te tienta hoy?</h1>
-                    <p>Ingredientes de verdad. preparados al momento.</p>
+                    <h1>CATALOGO</h1>
+                    <a href="carrito.html" class="btn-back">Ver carrito →</a>
                 </div>
                 <input class="input-filter" type="text" placeholder="Buscar en el catálogo">
             </div>
             <div class="mid">
                 <div class="catalog">
-                    <button> Producto 1</button>
-                    <button> Producto 2</button>
+                    <button class="btn-category-active" data-category="verano">Verano</button>
+                    <button class="btn-category" data-category="invierno">Invierno</button>
                 </div>
                  <div class="pagination">
                         <button type="button" id="btn-prev-page">← Anterior</button>

@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="module" src="js/index.js"></script>
+    <script type="module" src="scripts/index.js"></script>
     <link rel="stylesheet" href="css/style.css">
     <title>Bienvenida</title>
 </head>
 <body>
     <header class="header">
-        <h1 id="title-store">miga.</h1>
+        <section class="logo-sect">
+            <img src="img/favicon.png" alt="" class="icon-img">
+            <h1 id="title-store">PERCHA</h1>
+        </section>
         <div class="navbar">
             <div class="nav-position-active">
                 <span>1</span> 
@@ -27,27 +30,25 @@
                 <span>4</span>
                 <p>Ticket</p>
             </div>
+            <button type="button" id="btn-theme">Modo oscuro</button>
         </div>
-        <button id="btn-admin-panel">Administración ↗</button>
+        <a href="/login" id="btn-admin-panel">Administración ↗</a>
     </header>
     <main class="main">
         <section class="welcome-form">
-            <p class="welcome-eyebrow">BUENA COMIDA. A TU RITMO.</p>
+            <p class="welcome-eyebrow">ROPA ADAPTADA A TU GUSTO.</p>
             <h1 class="welcome-title">Registra tu pedido aquí</h1>
-            <p class="welcome-subtitle">Elegí lo que te gusta. Nosotros lo preparamos.</p>
+            <p class="welcome-subtitle">Elegí lo que te gusta </p>
 
+        <form id="welcome-form" class="welcome-fields" action="menu.html">
             <div class="welcome-field">
-                <label for="input-name" class="welcome-label">Primero, ¿cómo te llamás?</label>
-                <input type="text" id="input-name" class="input-name" placeholder="Ingresá tu nombre" required>
-                <span class="welcome-hint">Te llamaremos cuando tu pedido esté listo.</span>
+                <input type="text" id="input-name" class="input-name" placeholder="Ingresá tu nombre" required pattern=".*\S.*">
             </div>
-
-            <button type="button" id="btn-menu">
+            <button type="submit" id="btn-menu">
                 <span>Ver el menú</span>
                 <span>→</span>
             </button>
-
-            <p class="welcome-footnote">Elegí. Confirmá. Disfrutá.</p>
+        </form>
         </section>
 
         <section class="welcome-media">
