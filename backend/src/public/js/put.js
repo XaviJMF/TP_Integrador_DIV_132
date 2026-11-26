@@ -115,7 +115,7 @@ function renderizarProducto(producto) {
     });
 }
 
-
+comida
 function mostrarFormProducto(producto) {
     console.table(producto);
     
@@ -131,8 +131,8 @@ function mostrarFormProducto(producto) {
             
             <label for="categoryProd">Categoria</label>
             <select name="category" id="categoryProd" required>
-                <option value="food">Comida</option>
-                <option value="drink">Bebida</option>
+                <option value="verano">Verano</option>
+                <option value="invierno">Invierno</option>
             </select>
 
             <label for="imageProd">Imagen</label>
