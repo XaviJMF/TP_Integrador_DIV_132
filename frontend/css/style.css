@@ -1,16 +1,19 @@
+/* ==========================================================================
+   VARIABLES Y CONFIGURACIÓN GENERAL
+   ========================================================================== */
+
 :root {
-  /*Textos*/
+  /* Textos */
   --title-store: #CB4728;
   --btn-admin-panel: #3c3d3d;
   --text: #ffffff;
   --text-alt: #000000;
   --text-btns: #e05a2b;
 
-
-  /*Bordes*/
+  /* Bordes */
   --border-color: #E4E5DD;
 
-  /*Backgrounds*/
+  /* Fondos */
   --background: #fcf5f5;
   --nav-position-activate: #CB4728;
   --nav-position-inactive: #EFEFE8;
@@ -18,29 +21,26 @@
   --btn-menu-hover: #CB4728;
 }
 
-/* CONFIG GENERAL */
-
 * {
-    margin: 0px;
-    padding: 0px;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  margin: 0px;
+  padding: 0px;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
 body {
-    background-color: var(--background);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+  background-color: var(--background);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 button {
   border: none;
 }
 
-button:hover{
+button:hover {
   cursor: pointer;
 }
-
 
 .screen-menu {
   flex: 1;
@@ -58,142 +58,286 @@ button:hover{
   min-height: 70vh; /* en vez de height: 70vh fijo */
 }
 
-/* HEADER */
+/* ==========================================================================
+   ENCABEZADO Y NAVEGACIÓN
+   ========================================================================== */
 
 header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--border-color);
-    padding: 2px 20px;
-    height: 9vh;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding: 2px 20px;
+  height: 9vh;
 }
 
 #title-store {
-    color: var(--title-store);
+  color: var(--title-store);
 }
 
 .navbar {
-    display: flex;
-    justify-content: space-between;
-    gap: 35px;
-
+  display: flex;
+  justify-content: space-between;
+  gap: 35px;
 }
 
-.nav-position, .nav-position-active {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.nav-position,
+.nav-position-active {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .nav-position-active span {
-    display: flex;
-    height: 25px;
-    width: 28px;
-    border-radius: 14px;
-    justify-content: center;
-    padding-top: 2.5px;
-    margin-right: 10px;
-    color: var(--text);
-    background-color: var(--nav-position-activate);
+  display: flex;
+  height: 25px;
+  width: 28px;
+  border-radius: 14px;
+  justify-content: center;
+  padding-top: 2.5px;
+  margin-right: 10px;
+  color: var(--text);
+  background-color: var(--nav-position-activate);
 }
 
 .nav-position span {
-    display: flex;
-    height: 25px;
-    width: 28px;
-    border-radius: 14px;
-    justify-content: center;
-    padding-top: 2.5px;
-    margin-right: 10px;
-    background-color: var(--nav-position-inactive);
+  display: flex;
+  height: 25px;
+  width: 28px;
+  border-radius: 14px;
+  justify-content: center;
+  padding-top: 2.5px;
+  margin-right: 10px;
+  background-color: var(--nav-position-inactive);
 }
 
-.nav-position a, .nav-position-active a {
-    text-decoration: none;
-    color: black;
+.nav-position a,
+.nav-position-active a {
+  text-decoration: none;
+  color: black;
 }
-
-/* BOTON DE PANEL DEL ADMIN*/
 
 #btn-admin-panel {
-    color: var(--text-btn-admin-panel);
-    background: none;
-    border: none;
+  color: var(--text-btn-admin-panel);
+  background: none;
+  border: none;
 }
 
+/* ==========================================================================
+   VISTA DE BIENVENIDA
+   ========================================================================== */
 
-/* VISTA DE BIENVENIDA */
+.welcome-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+  max-width: 440px;
+  width: 100%;
+}
+
+.welcome-eyebrow {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--title-store);
+}
+
+.welcome-title {
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  line-height: 1.08;
+  color: #1e2320;
+}
+
+.welcome-subtitle,
+.welcome-hint,
+.welcome-footnote {
+  font-size: 0.92rem;
+  color: #6f7570;
+}
+
+.welcome-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.welcome-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e2320;
+}
 
 .input-name {
-    height: 32px;
-    width: 28vw;
-    padding-left: 7px;
-    border-radius: 7px;
-    border: 1px solid;
+  height: 38px;
+  width: 100%;
+  max-width: 420px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid #d5d5ce;
+  background-color: #ffffff;
+  box-sizing: border-box;
 }
 
 #btn-menu {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: var(--btn);
-    height: 36px;
-    width: 28vw;
-    padding: 0px 12px;
-    border: none;
-    border-radius: 7px;
-    text-align: start;
-    text-decoration: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--btn);
+  height: 42px;
+  width: 100%;
+  max-width: 420px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 8px;
+  text-align: start;
+  text-decoration: none;
+  box-sizing: border-box;
 }
 
 #btn-menu span {
-    color: var(--text);
+  color: var(--text);
+  font-weight: 600;
 }
 
 #btn-menu:hover {
-    cursor: pointer;
-    background-color: var(--btn-menu-hover);
+  cursor: pointer;
+  background-color: var(--btn-menu-hover);
 }
 
-/* VISTA DEL MENÚ*/
+.welcome-media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.background-welcome {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.welcome-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background-color: #ffffff;
+  color: #1e2320;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+.welcome-img {
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  object-fit: cover;
+  display: block;
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 900px) {
+  header {
+    height: auto;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .navbar {
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .main {
+    grid-template-columns: 1fr;
+    padding: 20px;
+    gap: 24px;
+  }
+
+  .welcome-form,
+  .input-name,
+  #btn-menu,
+  .background-welcome {
+    max-width: 100%;
+  }
+
+  .modal-ticket {
+    width: 100%;
+    min-height: auto;
+  }
+
+  .btn-finish {
+    width: 100%;
+  }
+
+  .cart-summary-card {
+    margin-left: 0;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .screen-menu {
+    padding: 16px;
+  }
+
+  .view-products {
+    grid-template-columns: 1fr;
+  }
+
+  .input-filter {
+    width: 100%;
+  }
+}
+
+/* ==========================================================================
+   VISTA DEL MENÚ Y PAGINACIÓN
+   ========================================================================== */
 
 .top {
-    display: flex; 
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 20px;
 }
 
 .mid {
-    display: flex;
-    justify-content: space-between;
+  display: flex;
+  justify-content: space-between;
 }
 
 .catalog {
-    display: flex;
-    gap: 20px
+  display: flex;
+  gap: 20px;
 }
 
 .catalog button {
-    border: none;
-    border-radius: 5px;
-    color: white;
-    background-color: black;
-    padding: 5px 12px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  background-color: black;
+  padding: 5px 12px;
 }
 
 .catalog button:hover {
-    color: white;
-    background-color: rgb(93, 91, 91);
+  color: white;
+  background-color: rgb(93, 91, 91);
 }
 
 .input-filter {
-    height: 32px;
-    width: 28vw;
-    padding-left: 7px;
-    border-radius: 7px;
-    border: 1px solid;
+  height: 32px;
+  width: 28vw;
+  padding-left: 7px;
+  border-radius: 7px;
+  border: 1px solid;
 }
 
 .view-products {
@@ -262,54 +406,53 @@ header {
   transform: scale(0.98);
 }
 
-/* PAGINACIÓN */
-
+/* Paginación */
 .pagination {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
 }
 
 .pagination button {
-    background-color: var(--btn);
-    color: var(--text);
-    border: none;
-    border-radius: 10px;
-    padding: 8px 16px;
-    font-size: 0.92rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
+  background-color: var(--btn);
+  color: var(--text);
+  border: none;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
 }
 
 .pagination button:hover:not(:disabled) {
-    background-color: var(--btn-menu-hover);
+  background-color: var(--btn-menu-hover);
 }
 
 .pagination button:active:not(:disabled) {
-    transform: scale(0.98);
+  transform: scale(0.98);
 }
 
 .pagination button:disabled {
-    background-color: var(--nav-position-inactive);
-    color: #9a9a95;
-    cursor: not-allowed;
-    opacity: 0.75;
+  background-color: var(--nav-position-inactive);
+  color: #9a9a95;
+  cursor: not-allowed;
+  opacity: 0.75;
 }
 
 #page-info {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #1e2320;
-    min-width: 110px;
-    text-align: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e2320;
+  min-width: 110px;
+  text-align: center;
 }
 
-/* VISTA DEL CARRITO*/
-
-/* TARJETAS DEL CARRITO */
+/* ==========================================================================
+   VISTA DEL CARRITO Y RESUMEN
+   ========================================================================== */
 
 /* Contenedor de tarjetas del carrito: grilla compacta y ordenada */
 .products-cart {
@@ -380,10 +523,112 @@ header {
   color: #1e2320;
 }
 
-/* TICKET PREVIO */
+/* Contenedor general del resumen */
+.cart-summary-card {
+  background-color: #eff1ea;
+  border-radius: 18px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-sizing: border-box;
+  margin-left: 6rem;
+  max-width: 70%;
+}
 
-/* TEXTO EN VISTA TICKET */
+/* Encabezado del resumen */
+.cart-summary-header {
+  padding-bottom: 4px;
+}
 
+.cart-summary-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e2320;
+  line-height: 1.2;
+}
+
+/* Lista de productos del resumen */
+.cart-summary-items {
+  width: 100%;
+}
+
+.user-cart {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.user-cart li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.92rem;
+  color: #6f7570;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #dfe3da;
+}
+
+.user-cart li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* Pie del resumen (total y botón) */
+.cart-summary-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #dfe3da;
+}
+
+.cart-summary-meta {
+  margin: 0;
+  font-size: 1.65rem;
+  color: #6f7570;
+}
+
+.cart-summary-total {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e2320;
+  line-height: 1.1;
+}
+
+.btn-confirm-order {
+  width: 100%;
+  margin-top: 4px;
+  padding: 11px 26px;
+  border: none;
+  border-radius: 12px;
+  background-color: var(--btn-menu-hover);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.btn-confirm-order:hover {
+  background-color: var(--btn);
+}
+
+.btn-confirm-order:active {
+  transform: scale(0.99);
+}
+
+/* ==========================================================================
+   VISTA DEL TICKET
+   ========================================================================== */
+
+/* Texto y acciones en vista ticket */
 .left-ticket-view {
   display: flex;
   flex-direction: column;
@@ -430,8 +675,7 @@ header {
   font-size: 12px;
 }
 
-/* TICKET FINAL */
-
+/* Ticket final */
 .modal-ticket {
   display: flex;
   flex-direction: column;
@@ -478,7 +722,6 @@ header {
   font-weight: bold;
 }
 
-
 #datetime-ticket {
   font-size: 13px;
 }
@@ -500,120 +743,14 @@ header {
   justify-content: space-between;
 }
 
-
-
-
-/* CONTENEDOR GENERAL DEL RESUMEN */
-.cart-summary-card {
-  background-color: #eff1ea;
-  border-radius: 18px;
-  padding: 20px 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  box-sizing: border-box;
-  margin-left: 6rem;
-  max-width: 70%;
-}
-
-.cart-summary-title {
-  font-size: 1.3rem;
-}
-
-/* ENCABEZADO */
-.cart-summary-header {
-  padding-bottom: 4px;
-}
-
-.cart-summary-title {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1e2320;
-  line-height: 1.2;
-}
-
-/* LISTA DE PRODUCTOS */
-.cart-summary-items {
-  width: 100%;
-}
-
-.user-cart {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.user-cart li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  font-size: 0.92rem;
-  color: #6f7570;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #dfe3da;
-}
-
-.user-cart li:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-/* PIE DEL RESUMEN (TOTAL Y BOTÓN) */
-.cart-summary-footer {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-top: 12px;
-  border-top: 1px solid #dfe3da;
-}
-
-.cart-summary-meta {
-  margin: 0;
-  font-size: 1.65rem;
-  color: #6f7570;
-}
-
-.cart-summary-total {
-  margin: 0;
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1e2320;
-  line-height: 1.1;
-}
-
-.btn-confirm-order {
-  width: 100%;
-  margin-top: 4px;
-  padding: 11px 26px;
-  border: none;
-  border-radius: 12px;
-  background-color: var(--btn-menu-hover);
-  color: var(--text);
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.15s ease, transform 0.1s ease;
-}
-
-.btn-confirm-order:hover {
-  background-color: var(--btn);
-}
-
-.btn-confirm-order:active {
-  transform: scale(0.99);
-}
-
-/* FOOTER */
+/* ==========================================================================
+   PIE DE PÁGINA
+   ========================================================================== */
 
 footer {
-    display: flex;
-    justify-content: center;
-    padding: 20px;
-    border-top: 1px solid var(--border-color);
-    margin-top: auto;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  border-top: 1px solid var(--border-color);
+  margin-top: auto;
 }

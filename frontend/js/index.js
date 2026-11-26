@@ -1,4 +1,3 @@
-
 // ================================================================================
 // VARIABLES GLOBALES
 
@@ -17,16 +16,17 @@ const STORAGE_USUARIO = "username";
 const storageCarrito = "localStorage";
 
 // BOTONES
+const btnMenu = document.getElementById("btn-menu");
 // BOTONES DE LA PAGINACION
 const btnPrevPage = document.getElementById("btn-prev-page");
 const btnNextPage = document.getElementById("btn-next-page");
+// BOTONES DE CONFIMAR ORDEN
+const btnConfirmar = document.querySelector(".btn-confirm-order");
+// BOTON DE GENERAR NUEVO PEDIDO
+const btnNuevoPedido = document.querySelector(".btn-finish");
+
 const pageInfo = document.getElementById("page-info");
 
-const btnMenu = document.getElementById("btn-menu");
-
-const btnConfirmar = document.querySelector(".btn-confirm-order");
-
-const btnNuevoPedido = document.querySelector(".btn-finish");
 
 // Variable principal del carrito inicializada desde LocalStorage
 let carrito = leerCarrito();
@@ -36,85 +36,98 @@ let carrito = leerCarrito();
 // ================================================================================
 // LECTURAS
 
+// Obtiene y limpia el nombre del cliente guardado en localStorage, o devuelve "" si no existe
 function leerNombreUsuario() {
   try {
-    // Verifica que exista un String asociado al valor de "username"
+    // 1. Lee el valor guardado bajo STORAGE_USUARIO en localStorage
     const guardado = localStorage.getItem(STORAGE_USUARIO);
-    // VALIDACION: En caso de ser verdadero quita los espacios sobrantes de los extremos, y en caso de que no exista lo devuelve vacio
+
+    // 2. Si existe un valor, quita espacios de los extremos; si no, devuelve cadena vacía
     return guardado ? guardado.trim() : "";
   } catch (error) {
+    // 3. Registra el error en consola y devuelve "" para no romper las funciones que dependan de este dato
     console.error("Error al leer el nombre de usuario:", error);
-    // Devuelve String Vacio para las funciones que llaman a esta no den un fallo
     return "";
   }
 }
 
+// Recupera y parsea el carrito desde localStorage garantizando que siempre devuelva un array
 function leerCarrito() {
   try {
-    // Recupera el carrito guardado en LocalStorage
+    // 1. Busca el texto JSON guardado bajo storageCarrito y lo convierte a estructura de JS (o [] si no hay nada)
     const guardado = localStorage.getItem(storageCarrito);
     const parsed = guardado ? JSON.parse(guardado) : [];
-    // VALIDACION: Asegura que el valor parseado sea un array para evitar fallos en .map() o .find()
+
+    // 2. Devuelve el array solo si realmente es un Array; si no, devuelve []
     return Array.isArray(parsed) ? parsed : [];
   } catch (error) {
+    
+    // 3. Si el JSON está corrupto o falla localStorage, informa el error y devuelve un array vacío
     console.error("Error al leer el carrito de localStorage:", error);
-    // Devuelve array vacío para que el resto de la aplicación siga funcionando sin romperse
     return [];
   }
 }
 
+// Calcula el importe total acumulado de todos los productos en el carrito
 function calcularTotal() {
-    return carrito.reduce((total, producto) => {
-        const precio = Number(producto.price) || 0;
-        const cantidad = Number(producto.cantidad) || 0;
+  // 1. Recorre carrito sumando (precio * cantidad) de cada ítem, convirtiendo valores a número con fallback 0
+  return carrito.reduce((total, producto) => {
+    const precio = Number(producto.price) || 0;
+    const cantidad = Number(producto.cantidad) || 0;
 
-        return total + (precio * cantidad);
-    }, 0);
+    return total + (precio * cantidad);
+  }, 0);
 }
 
+// Calcula la cantidad total de unidades sumadas en el carrito
 function calcularUnidades() {
-    return carrito.reduce((total, producto) => {
-        return total + (Number(producto.cantidad) || 0);
-    }, 0);
+  // 1. Recorre carrito acumulando la cantidad numérica de cada producto (0 si falta o no es válida)
+  return carrito.reduce((total, producto) => {
+    return total + (Number(producto.cantidad) || 0);
+  }, 0);
 }
 
-// Comprueba si existe un nombre válido.
+// Comprueba si existe un nombre de usuario guardado no vacío
 function usuarioRegistrado() {
-    return leerNombreUsuario().length > 0;
+  // 1. Lee el nombre con leerNombreUsuario() y devuelve true si tiene al menos 1 carácter
+  return leerNombreUsuario().length > 0;
 }
 
-// Comprueba si el pedido ya fue confirmado.
+// Comprueba si el pedido actual fue marcado como confirmado en localStorage
 function pedidoConfirmado() {
-    return localStorage.getItem(STORAGE_PEDIDO_CONFIRMADO) === "true";
+  // 1. Compara exactamente el valor almacenado en STORAGE_PEDIDO_CONFIRMADO con el string "true"
+  return localStorage.getItem(STORAGE_PEDIDO_CONFIRMADO) === "true";
 }
 
-// Controla el acceso según la página actual.
+// Valida si el usuario puede permanecer en la vista actual o lo redirige según su estado
 function controlarAcceso() {
+  // 1. Extrae el nombre del archivo HTML actual desde la ruta de la URL
+  const pagina = window.location.pathname.split("/").pop();
 
-    const pagina = window.location.pathname.split("/").pop();
+  // 2. Consulta el estado actual de registro de nombre y de confirmación de pedido
+  const nombreValido = usuarioRegistrado();
+  const confirmado = pedidoConfirmado();
 
-    const nombreValido = usuarioRegistrado();
-    const confirmado = pedidoConfirmado();
+  // 3. Si no hay nombre guardado y no está en welcome.html, redirige a bienvenida y cancela el inicio
+  if (!nombreValido && pagina !== "welcome.html") {
+    window.location.replace("welcome.html");
+    return false;
+  }
 
-    // Sin nombre: solamente puede acceder a bienvenida.
-    if (!nombreValido && pagina !== "welcome.html") {
-        window.location.replace("welcome.html");
-        return false;
-    }
+  // 4. Si el pedido ya está confirmado y está en una ruta distinta de ticket.html o welcome.html, fuerza ticket.html
+  if (confirmado && pagina !== "ticket.html" && pagina !== "welcome.html") {
+    window.location.replace("ticket.html");
+    return false;
+  }
 
-    // Con pedido confirmado: solamente puede acceder al ticket.
-    if (confirmado && pagina !== "ticket.html" && pagina !== "welcome.html") {
-        window.location.replace("ticket.html");
-        return false;
-    }
+  // 5. Si el pedido no está confirmado y se intenta entrar a ticket.html, redirige a carrito.html
+  if (!confirmado && pagina === "ticket.html") {
+    window.location.replace("carrito.html");
+    return false;
+  }
 
-    // Sin pedido confirmado: no puede entrar directamente al ticket.
-    if (!confirmado && pagina === "ticket.html") {
-        window.location.replace("carrito.html");
-        return false;
-    }
-
-    return true;
+  // 6. Si pasó todas las reglas de acceso, permite continuar cargando la vista
+  return true;
 }
 
 // ================================================================================
@@ -122,35 +135,41 @@ function controlarAcceso() {
 // ================================================================================
 // ESCRITURA
 
+// Limpia y guarda el nombre del cliente en localStorage, devolviendo el valor final
 function guardarNombreUsuario(nombre) {
-  // VALIDACION: Comprueba que sea de tipo string, nuevamente elimina espacios en caso de ser String
+  // 1. Verifica que nombre sea string y quita espacios sobrantes; si no, deja cadena vacía
   const limpio = typeof nombre === "string" ? nombre.trim() : "";
+
+  // 2. Intenta guardar el nombre limpio bajo STORAGE_USUARIO y captura fallos de almacenamiento
   try {
-    // Guarda el resultado en el LocalStorage
     localStorage.setItem(STORAGE_USUARIO, limpio);
   } catch (error) {
     console.error("Error al guardar el nombre de usuario:", error);
   }
+
+  // 3. Devuelve el nombre limpio para quien haya llamado a la función
   return limpio;
 }
 
-
+// Convierte el array carrito a texto JSON y lo persiste en localStorage
 function guardarCarrito() {
+  // 1. Intenta serializar y guardar carrito bajo storageCarrito protegiendo ante errores de storage
   try {
-    // Serializa y guarda el estado actual del carrito en LocalStorage
     localStorage.setItem(storageCarrito, JSON.stringify(carrito));
   } catch (error) {
     console.error("Error al guardar el carrito de localStorage:", error);
   }
 }
 
+// Agrega un producto por ID al carrito (o suma 1 si ya estaba) y refresca las vistas
 function agregarCarrito(idProducto) {
-  // Busca el producto seleccionado en el catálogo cargado en memoria
+  // 1. Busca el producto con ese ID dentro del catálogo cargado en listaProductos
   const p = listaProductos.find((prod) => Number(prod.id) === Number(idProducto));
-  // VALIDACION: Si no existe el producto en listaProductos, corta para no agregar datos inválidos
+
+  // 2. Si el producto no existe en listaProductos, corta para no insertar datos inválidos
   if (!p) return;
 
-  // Verifica si el producto ya está en el carrito para sumar cantidad o crear un nuevo ítem
+  // 3. Revisa si el producto ya está en carrito; si existe suma 1, si no crea un ítem nuevo con cantidad 1
   const existente = carrito.find((item) => Number(item.id) === Number(p.id));
   if (existente) {
     existente.cantidad += 1;
@@ -163,16 +182,22 @@ function agregarCarrito(idProducto) {
     });
   }
 
+  // 4. Guarda el carrito en localStorage y vuelve a dibujar carrito y grilla de productos
   guardarCarrito();
   mostrarCarrito();
   ProductosPorPagina(paginaActual);
 }
 
+// Elimina por completo un producto del carrito por ID y sincroniza las vistas
 function quitarDelCarrito(idProducto) {
+  // 1. Crea un nuevo array carrito excluyendo el producto cuyo ID coincida con idProducto
   carrito = carrito.filter((item) => Number(item.id) !== Number(idProducto));
+
+  // 2. Persiste el cambio y actualiza la vista del carrito
   guardarCarrito();
   mostrarCarrito();
 
+  // 3. Si existe la grilla de productos en la vista actual, redibuja la página para ocultar "Quitar"
   if (document.querySelector(".view-products")) {
     ProductosPorPagina(paginaActual);
   }
@@ -180,19 +205,23 @@ function quitarDelCarrito(idProducto) {
 
 // Modifica la cantidad de un ítem del carrito (+1 o -1) y lo elimina si llega a 0
 function cambiarCantidadCarrito(idProducto, delta) {
+  // 1. Busca la posición (índice) del producto en el array carrito comparando el ID como número
   const index = carrito.findIndex((item) => Number(item.id) === Number(idProducto));
-  // VALIDACION: Sale si el producto no se encuentra dentro del carrito
+
+  // 2. Si el producto no existe en el carrito (findIndex devuelve -1), corta sin hacer cambios
   if (index === -1) return;
 
+  // 3. Calcula la nueva cantidad sumando delta (+1 o -1) a la cantidad actual (1 por defecto si falta)
   const nuevaCantidad = (Number(carrito[index].cantidad) || 1) + delta;
 
+  // 4. Si la cantidad queda en 0 o menos, borra el elemento del array; si no, actualiza su cantidad
   if (nuevaCantidad <= 0) {
-    // Elimina el producto del carrito cuando la cantidad baja de 1
     carrito.splice(index, 1);
   } else {
     carrito[index].cantidad = nuevaCantidad;
   }
 
+  // 5. Guarda el estado actualizado en localStorage y vuelve a dibujar el carrito y sus totales
   guardarCarrito();
   mostrarCarrito();
 }
@@ -201,41 +230,52 @@ function cambiarCantidadCarrito(idProducto, delta) {
 // ================================================================================
 // VENTANA BIENVENIDA
 
-// Obtiene las etiquetas de las vistas y las guarda en variantes para luego validarlas e imprimir los mensajes que se necesitan segun la vista
+// Pinta el nombre recibido en las etiquetas de saludo y ticket que existan en la vista actual
 function crearMensajePorNombre(nombreVisible) {
+  // 1. Busca el elemento del saludo general y lo actualiza si está presente en el DOM
   const saludoEl = document.getElementById("user-greeting");
   if (saludoEl) {
     saludoEl.textContent = `Hola, ${nombreVisible}`;
   }
+
+  // 2. Busca el saludo principal del ticket y lo actualiza si existe
   const greetingsTicket = document.getElementById("user-greetings");
   if (greetingsTicket) {
     greetingsTicket.textContent = `¡Gracias, ${nombreVisible}!`;
   }
+
+  // 3. Busca la etiqueta del cliente en el ticket y la actualiza si existe
   const userTicket = document.getElementById("user-ticket");
   if (userTicket) {
     userTicket.textContent = `Cliente: ${nombreVisible}`;
   }
 }
 
+// Lee el nombre guardado en localStorage (o usa "Usuario" por defecto) y actualiza los textos visibles
 function actualizarSaludo() {
-  // Recupera el nombre guardado en LocalStorage
+  // 1. Obtiene el nombre guardado o recurre a "Usuario" si está vacío
   const nombre = leerNombreUsuario() || "Usuario";
+
+  // 2. Envía el nombre a crearMensajePorNombre para reflejarlo en las etiquetas de la vista
   crearMensajePorNombre(nombre);
 }
 
+// Sincroniza el input de nombre con el saludo inicial y la vista previa al escribir
 function syncInputNombre() {
-  // Obtiene el input y llama a la funcion de actualizarSaludo para poner un nombre en el header y valida que exista
+  // 1. Busca el campo de texto del nombre y refresca el saludo inicial
   const inputNombre = document.querySelector(".input-name");
   actualizarSaludo();
+
+  // 2. Si la vista actual no tiene .input-name, corta la ejecución sin error
   if (!inputNombre) return;
 
-  //Si ya habia un nombre preguardado, lo muestra en el input
+  // 3. Si había un nombre guardado y el input está vacío, precarga ese valor
   const nombreGuardado = leerNombreUsuario();
   if (nombreGuardado && !inputNombre.value) {
     inputNombre.value = nombreGuardado;
   }
 
-  // Mientras escribe, muestra vista previa en el saludo/ticket sin guardar aún en LocalStorage
+  // 4. Escucha cada tecla/cambio en el input para previsualizar el nombre sin guardar aún en localStorage
   inputNombre.addEventListener("input", () => {
     const preview = inputNombre.value.trim() || "Usuario";
     crearMensajePorNombre(preview);
@@ -270,95 +310,99 @@ if (btnMenu) {
 */
 
 // VISTA DE MENU
+// Solicita el catálogo al backend, guarda la lista en memoria y dibuja la vista inicial
 async function cargarProductos() {
   try {
-    // Solicita el listado de productos al endpoint del backend
+    // 1. Pide el listado de productos al endpoint de la API
     const respuesta = await fetch("http://localhost:3000/api/products/");
-    // VALIDACION: Comprueba que la respuesta HTTP sea exitosa antes de parsear el JSON
+
+    // 2. Verifica que el estado HTTP sea correcto (200-299) antes de leer el JSON
     if (!respuesta.ok) {
       throw new Error(`Error HTTP: ${respuesta.status}`);
     }
 
+    // 3. Convierte la respuesta a objeto y asegura que listaProductos sea un array
     const data = await respuesta.json();
-    // VALIDACION: Asegura que listaProductos sea un array aunque data.payload venga vacío o con otro formato
     listaProductos = Array.isArray(data.payload) ? data.payload : [];
 
-    // Renderiza la primera página del catálogo y sincroniza el carrito una vez cargados los productos
-    ProductosPorPagina(1); 
+    // 4. Renderiza la primera página de productos y sincroniza la vista del carrito
+    ProductosPorPagina(1);
     mostrarCarrito();
   } catch (error) {
+    // 5. Informa en consola si falla la red, el servidor o el parseo del JSON
     console.error("No se pudieron cargar los productos:", error);
   }
 }
 
+// Calcula el rango de productos de la página indicada y dibuja sus tarjetas en .view-products
 function ProductosPorPagina(pagina) {
-  // Obtiene y limpia la vista antes de procesarla
+  // 1. Busca el contenedor de productos y limpia su contenido anterior
   const viewProducts = document.querySelector(".view-products");
-  // VALIDACION: Evita fallar si la vista de productos no existe en la página o vista actual
   if (!viewProducts) return;
   viewProducts.innerHTML = "";
 
-  // Divide la cantidad de productos entre la cantidad de productos por pagina y aplica 0 para descartar decimales
-  // y generá el total de páginas.
+  // 2. Calcula el total de páginas dividiendo por productosPorPagina y truncando decimales con | 0
   let totalPaginas = (listaProductos.length / productosPorPagina) | 0;
-  // VALIDACION: Suma una página extra si hay productos sobrantes que no completan la grilla
+
+  // 3. Agrega una página extra si queda algún resto de productos y garantiza al menos 1 página
   if (listaProductos.length % productosPorPagina !== 0) {
     totalPaginas += 1;
   }
-
-  // Fuerza una pagina en caso de no haber productos
   if (totalPaginas < 1) {
     totalPaginas = 1;
   }
 
-  // Evita que sobrepase los limites de la pagina, ya sea adelante o atras
+  // 4. Limita la página solicitada para que no baje de 1 ni supere totalPaginas
   let paginaSolicitada = pagina;
   if (paginaSolicitada < 1) {
     paginaSolicitada = 1;
   }
-
   if (paginaSolicitada > totalPaginas) {
     paginaSolicitada = totalPaginas;
   }
 
+  // 5. Guarda la página activa y actualiza texto y estado de los botones de paginación
   paginaActual = paginaSolicitada;
   actualizarControlesPaginacion(totalPaginas);
 
-  // Calcula los indices que tomará de la Lista de productos los cuales mostrara en la vista
+  // 6. Recorta el sub-array correspondiente a la página actual usando inicio y fin
   const inicio = (paginaActual - 1) * productosPorPagina;
   const fin = inicio + productosPorPagina;
   const productosPagina = listaProductos.slice(inicio, fin);
 
-  // Recorre cada producto de la pagina actual y genera su card en HTML, por ultimo lo agrega a la vista
+  // 7. Recorre los productos de la página, agrega botón "Quitar" si ya está en carrito y suma la card al DOM
   productosPagina.forEach((p) => {
-  const itemEnCarrito = carrito.find((item) => Number(item.id) === Number(p.id));
-  const btnQuitar = itemEnCarrito
-    ? `<button type="button" data-id="${p.id}" class="btn-remove">Quitar</button>`
-    : "";
+    const itemEnCarrito = carrito.find((item) => Number(item.id) === Number(p.id));
+    const btnQuitar = itemEnCarrito
+      ? `<button type="button" data-id="${p.id}" class="btn-remove">Quitar</button>`
+      : "";
 
-  let card = `
-    <div class="modal-card">
-      <img src="${p.image}" alt="" class="product-img">
-      <h2 class="product-title">${p.name}</h2>
-      <p class="product-price">${p.price}</p>
-      <button data-id="${p.id}" class="btn-add">Agregar +</button>
-      ${btnQuitar}
-    </div>
-  `;
-  viewProducts.innerHTML += card;
-});
+    let card = `
+      <div class="modal-card">
+        <img src="${p.image}" alt="" class="product-img">
+        <h2 class="product-title">${p.name}</h2>
+        <p class="product-price">${p.price}</p>
+        <button data-id="${p.id}" class="btn-add">Agregar +</button>
+        ${btnQuitar}
+      </div>
+    `;
+    viewProducts.innerHTML += card;
+  });
 }
 
+// Actualiza el indicador de página y habilita o deshabilita los botones anterior y siguiente
 function actualizarControlesPaginacion(totalPaginas) {
-  // Si existe generá el texto de la ubicacion actual
+  // 1. Escribe el texto "Página X de Y" si existe el elemento pageInfo
   if (pageInfo) {
     pageInfo.textContent = `Página ${paginaActual} de ${totalPaginas}`;
   }
-  // En caso de estar en la primera pagina se desactiva el boton para no retroceder más
+
+  // 2. Deshabilita el botón anterior si estás en la primera página o antes
   if (btnPrevPage) {
     btnPrevPage.disabled = paginaActual <= 1;
   }
-  // En caso de estar en la ultima pagina se desactiva el boton para no avanzar más
+
+  // 3. Deshabilita el botón siguiente si estás en la última página o la superás
   if (btnNextPage) {
     btnNextPage.disabled = paginaActual >= totalPaginas;
   }
@@ -368,32 +412,35 @@ function actualizarControlesPaginacion(totalPaginas) {
 // ================================================================================
 // VENTANA CARRITO
 
+// Calcula total y unidades y actualiza los textos de resumen en carrito y ticket
 function actualizarResumenPedido() {
-
+    // 1. Calcula el monto total y la cantidad total de unidades del carrito
     const total = calcularTotal();
     const unidades = calcularUnidades();
-
+    // 2. Busca los elementos donde se muestran el total, las unidades y el precio final
     const totalCarrito = document.querySelector(".cart-summary-total");
     const metaCarrito = document.querySelector(".cart-summary-meta");
-
     const totalTicket = document.getElementById("price");
-
+    // 3. Actualiza el importe total de la vista del carrito si existe
     if (totalCarrito) {
         totalCarrito.textContent = `$${total.toFixed(2)}`;
     }
-
+    // 4. Actualiza la cantidad total de unidades del resumen si existe
     if (metaCarrito) {
         metaCarrito.textContent = `Total | ${unidades} Unidades`;
     }
-
+    // 5. Actualiza el total visible en el ticket si existe
     if (totalTicket) {
         totalTicket.textContent = `$${total.toFixed(2)}`;
     }
 }
 
+// Dibuja la lista resumida (.user-cart), las tarjetas detalladas (.products-cart) y actualiza el resumen del pedido
 function mostrarCarrito() {
-  // Actualiza las listas resumidas del carrito (.user-cart) si existen en la vista actual
+  // 1. Busca todos los contenedores de lista resumida en la vista actual (.user-cart)
   const listasCart = document.querySelectorAll(".user-cart");
+
+  // 2. Si existe al menos una lista resumida, arma su HTML según haya ítems en carrito o esté vacío
   if (listasCart.length) {
     const contenido = carrito.length
       ? carrito
@@ -404,27 +451,32 @@ function mostrarCarrito() {
           .join("")
       : `<li>Tu carrito está vacío</li>`;
 
+    // 3. Inserta el HTML generado en cada contenedor .user-cart encontrado
     listasCart.forEach((lista) => {
       lista.innerHTML = contenido;
     });
   }
 
-  // Renderiza las tarjetas detalladas del carrito (.products-cart) cruzando con listaProductos
+  // 4. Busca los contenedores de tarjetas detalladas del carrito (.products-cart); si no hay ninguno, corta acá
   const viewProductsCart = document.querySelectorAll(".products-cart");
   if (!viewProductsCart.length) return;
 
+  // 5. Recorre cada ítem del carrito y busca sus datos completos en listaProductos por id
   const cardsHtml = carrito
     .map((itemCarrito) => {
       const producto = listaProductos.find(
         (p) => Number(p.id) === Number(itemCarrito.id)
       );
-      // VALIDACION: Omite el ítem si aún no se cargó o no existe en listaProductos
+
+      // 6. Si el producto no está en listaProductos (por ejemplo en vistas donde no se cargó el catálogo), omite esa tarjeta
       if (!producto) return "";
 
+      // 7. Calcula cantidad, precio unitario y subtotal formateado a 2 decimales
       const cantidad = Number(itemCarrito.cantidad) || 1;
       const precioUnitario = Number(producto.price) || 0;
       const subtotal = (precioUnitario * cantidad).toFixed(2);
 
+      // 8. Devuelve el HTML de la tarjeta del carrito con botones para restar (-) o sumar (+) cantidad
       return `
         <div class="modal-card cart-card">
           <img src="${producto.image ?? ""}" alt="${producto.name ?? ""}" class="product-img">
@@ -440,12 +492,15 @@ function mostrarCarrito() {
     })
     .join("");
 
+  // 9. Si no se generó ninguna tarjeta (carrito vacío o listaProductos sin coincidencias), muestra mensaje de vacío
   const contenidoFinal = cardsHtml || `<p>Tu carrito está vacío</p>`;
 
+  // 10. Escribe el HTML final dentro de cada contenedor .products-cart
   viewProductsCart.forEach((lista) => {
     lista.innerHTML = contenidoFinal;
   });
 
+  // 11. Actualiza los textos de total y unidades del resumen del pedido
   actualizarResumenPedido();
 }
 // ================================================================================
@@ -453,28 +508,26 @@ function mostrarCarrito() {
 // ================================================================================
 // VENTANA TICKET
 
-
+// Actualiza los datos propios de la vista del ticket (fecha, número, nombre y totales)
 function actualizarTicket() {
-
+    // 1. Obtiene el nombre del cliente guardado en localStorage
     const nombre = leerNombreUsuario();
-    const total = calcularTotal();
-
+    // 2. Crea un objeto con la fecha y hora actual del sistema
     const fecha = new Date();
-
+    // 3. Busca en el DOM los elementos de fecha y número de ticket
     const fechaElemento = document.getElementById("datetime-ticket");
-
     const numeroTicket = document.getElementById("id-ticket");
-
+    // 4. Si existe el elemento de fecha, muestra la fecha/hora formateada para Argentina
     if (fechaElemento) {
         fechaElemento.textContent = fecha.toLocaleString("es-AR");
     }
-
+    // 5. Si existe el elemento del número de ticket, le asigna el identificador "M-001"
     if (numeroTicket) {
         numeroTicket.textContent = "M-001";
     }
-
+    // 6. Pinta los mensajes con el nombre del cliente en las etiquetas de la vista
     crearMensajePorNombre(nombre);
-
+    // 7. Calcula y actualiza el total y las unidades tanto en carrito como en ticket
     actualizarResumenPedido();
 }
 
@@ -605,39 +658,7 @@ if (btnNextPage) {
   });
 }
 
-// BOTONES DE AGREGAR O QUITAR DEL CARRITO - VENTANA MENU
-// Delegación de eventos para agregar productos al carrito desde cualquier botón .btn-add
-document.addEventListener("click", (e) => {
-  const btn = e.target.closest(".btn-add");
-  if (!btn) return;
-
-  const idProducto = Number(btn.dataset.id);
-  agregarCarrito(idProducto);
-});
-
-document.addEventListener("click", (e) => {
-  const btnRemove = e.target.closest(".btn-remove");
-  if (!btnRemove) return;
-
-  quitarDelCarrito(Number(btnRemove.dataset.id));
-});
-
 // ----------------------------------------------------------------------
-
-// BOTONES DE INCREMENTAR O REDUCIR PRODUCTO EN CARRITO - VENTANA CARRITO
-// Delegación de eventos para incrementar (+) o decrementar (-) cantidades en las tarjetas del carrito
-document.addEventListener("click", (e) => {
-  const btnInc = e.target.closest(".btn-qty-inc");
-  if (btnInc) {
-    cambiarCantidadCarrito(Number(btnInc.dataset.id), 1);
-    return;
-  }
-
-  const btnDec = e.target.closest(".btn-qty-dec");
-  if (btnDec) {
-    cambiarCantidadCarrito(Number(btnDec.dataset.id), -1);
-  }
-});
 
 // BOTON DE CONFIRMAR PEDIDO - VENTANA CARRITO
 // Verifica que exista el botón de confirmar antes de registrar el evento
@@ -657,8 +678,39 @@ if (btnConfirmar) {
 
 // ----------------------------------------------------------------------
 
-//  BOTON DE DESCARGAR TICKET EN PDF - VENTANA TICKET
+// EVENTOS DELEGADOS POR CLIC (BOTONES DINAMICOS Y DE ACCION)
+// Escucha un único clic en document y detecta qué botón de acción fue presionado
 document.addEventListener("click", (e) => {
+  // 1. Agregar producto desde la vista del menú (.btn-add)
+  const btnAdd = e.target.closest(".btn-add");
+  if (btnAdd) {
+    const idProducto = Number(btnAdd.dataset.id);
+    agregarCarrito(idProducto);
+    return;
+  }
+
+  // 2. Quitar producto completo desde la tarjeta del menú (.btn-remove)
+  const btnRemove = e.target.closest(".btn-remove");
+  if (btnRemove) {
+    quitarDelCarrito(Number(btnRemove.dataset.id));
+    return;
+  }
+
+  // 3. Incrementar cantidad de un ítem en el carrito (.btn-qty-inc)
+  const btnInc = e.target.closest(".btn-qty-inc");
+  if (btnInc) {
+    cambiarCantidadCarrito(Number(btnInc.dataset.id), 1);
+    return;
+  }
+
+  // 4. Decrementar cantidad de un ítem en el carrito (.btn-qty-dec)
+  const btnDec = e.target.closest(".btn-qty-dec");
+  if (btnDec) {
+    cambiarCantidadCarrito(Number(btnDec.dataset.id), -1);
+    return;
+  }
+
+  // 5. Descargar el ticket en PDF desde la vista del ticket (.btn-download)
   const btnDownload = e.target.closest(".btn-download");
   if (btnDownload) {
     imprimirTicket();
