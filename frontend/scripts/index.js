@@ -525,6 +525,36 @@ function mostrarCarrito() {
   // 11. Actualiza los textos de total y unidades del resumen del pedido
   actualizarResumenPedido();
 }
+
+// Envía la fecha, precio total, nombre de usuario y productos a /api/sales/
+async function registrarVenta() {
+  try {
+    if (carrito.length === 0) return null;
+
+    const fecha = new Date();
+    const payloadVenta = {
+      date: fecha.toISOString().slice(0, 10),
+      total_price: Number(calcularTotal().toFixed(2)),
+      user_name: leerNombreUsuario() || "Invitado",
+      products: carrito.map((item) => Number(item.id)),
+    };
+
+    const respuesta = await fetch("http://localhost:3000/api/sales/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payloadVenta),
+    });
+
+    if (!respuesta.ok) {
+      throw new Error(`Error HTTP: ${respuesta.status}`);
+    }
+
+    return await respuesta.json();
+  } catch (error) {
+    console.error("Error al registrar la venta:", error);
+    return null;
+  }
+}
 // ================================================================================
 
 // ================================================================================
@@ -676,15 +706,21 @@ if (btnNextPage) {
 // BOTON DE CONFIRMAR PEDIDO - VENTANA CARRITO
 // Verifica que exista el botón de confirmar antes de registrar el evento
 if (btnConfirmar) {
-  btnConfirmar.addEventListener("click", () => {
+  btnConfirmar.addEventListener("click", async () => {
     // 1. Impide confirmar si el carrito está vacío
     if (carrito.length === 0) {
       alert("No podés confirmar un pedido vacío.");
       return;
     }
+    const resultado = await registrarVenta();
+    if (!resultado) {
+      alert("No se pudo registrar la venta.");
+      return;
+    }
 
     // 2. Marca el pedido como confirmado en localStorage y pasa a la pantalla del ticket
     localStorage.setItem(STORAGE_PEDIDO_CONFIRMADO, "true");
+
     window.location.href = "ticket.html";
   });
 }

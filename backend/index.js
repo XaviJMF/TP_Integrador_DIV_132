@@ -2,7 +2,7 @@ import express from "express"; //importamos express
 import environments from "./src/api/config/environments.js";
 import cors from "cors";
 import {loggerURL} from "./src/api/middlewares/middleware.js";
-import { authRoutes, productRoutes, userRoutes, viewRoutes } from "./src/api/routes/index.js";
+import { authRoutes, productRoutes, saleRoutes, userRoutes, viewRoutes } from "./src/api/routes/index.js";
 import { __dirname, join } from "./src/api/utils/index.js";
 import session from "express-session";
 
@@ -60,6 +60,8 @@ app.use("/api/products", productRoutes)
 // Rutas de usuarios
 app.use("/api/users", userRoutes);
 
+// Rutas ventas
+app.use("/api/sales", saleRoutes);
 
 // Rutas vistas
 app.use("/dashboard", viewRoutes); // Redirigimos las consultas a /dashboard a la ruta de vistas
