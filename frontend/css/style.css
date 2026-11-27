@@ -80,7 +80,7 @@ button:hover {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 20px 50px;
+  padding: 20px 4%;           /* margen lateral en %: se achica solo en pantallas chicas */
   min-height: 70vh; /* en vez de height: 70vh fijo */
 }
 
@@ -355,20 +355,24 @@ header {
 .btn-category, .btn-category-active {
   border: none;
   border-radius: 5px;
-  color: white;
-  background-color: var(--text-main);
   padding: 5px 12px;
 }
 
-.btn-category-active {
-  background-color: var(--btn-dark-hover);
+/* Categoría inactiva: estilo suave (mismo que "Agregar +"), se lee bien en claro y oscuro */
+.btn-category {
+  color: var(--text-btns);
+  background-color: var(--btn-soft);
 }
 
 .btn-category:hover {
-  color: white;
-  background-color: var(--btn-dark-hover);
+  background-color: var(--btn-soft-hover);
 }
 
+/* Categoría activa: azul fuerte con texto blanco */
+.btn-category-active {
+  color: var(--text);
+  background-color: var(--btn);
+}
 .input-filter {
   height: 32px;
   width: 28vw;
@@ -381,17 +385,22 @@ header {
   color: var(--text-main);
 }
 
+/* Grilla de productos: 5 columnas x 2 filas (10 productos por página) */
 .view-products {
   display: flex;
   flex-wrap: wrap;            /* las tarjetas bajan de fila cuando no entran */
+  justify-content: center;
   margin-top: 10px;
-  gap: 1rem;
+  gap: 16px 1%;               /* 16px entre filas y 1% entre columnas */
 }
 
-/* Las tarjetas del menú crecen hasta un máximo y nunca bajan de 200px */
+/* Cada tarjeta ocupa el 19% del ancho (5 por fila + 4 separaciones de 1% = 99%).
+   Si la pantalla es chica, min-width impide que se achiquen más de 180px
+   y las tarjetas bajan solas: 4, 3, 2 o 1 por fila. */
 .view-products .modal-card {
-  flex: 1 1 200px;
-  max-width: 260px;
+  flex: 1 1 19%;
+  min-width: 180px;
+  max-width: 300px;
   box-sizing: border-box;
 }
 

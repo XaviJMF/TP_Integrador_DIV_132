@@ -700,14 +700,13 @@ if (formBienvenida) {
 // Verifica que exista el botón anterior y retrocede una página si es posible
 if (btnPrevPage) {
   btnPrevPage.addEventListener("click", () => {
-    ProductosPorPagina(paginaActual - 1);
+    cargarPagina(paginaActual - 1);
   });
 }
 
-// Verifica que exista el botón siguiente y avanza una página si es posible
 if (btnNextPage) {
   btnNextPage.addEventListener("click", () => {
-    ProductosPorPagina(paginaActual + 1);
+    cargarPagina(paginaActual + 1);
   });
 }
 
