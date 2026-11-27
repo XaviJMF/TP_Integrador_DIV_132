@@ -129,6 +129,30 @@ button, input, select {
     margin-left: auto;
 }
 
+/* Contenedor del botón */
+.contenedor-vista-cliente {
+    display: flex;
+    align-items: center;
+    margin-left: 300px;
+}
+
+/* Botón vista cliente */
+#btn-cliente-panel {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 7px 14px;
+
+    color: #19109e;
+ 
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+
+    transition: all 0.25s ease;
+}
+
 
 /* MENU LATERAL */
 
