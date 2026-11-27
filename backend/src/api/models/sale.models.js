@@ -19,8 +19,22 @@ const insertIntoProductSales = (productId, saleId) => {
     return connection.query(sql, [productId, saleId]);
 }
 
+// Obtiene todas las ventas ordenadas de la más reciente a la más vieja
+const getAllSales = () => {
+  const sql = "SELECT id, date, total_price, user_name FROM sales ORDER BY id DESC";
+  return connection.query(sql);
+};
+
+// Obtiene una venta por ID
+const getSaleById = (id) => {
+  const sql = "SELECT id, date, total_price, user_name FROM sales WHERE id = ?";
+  return connection.query(sql, [id]);
+};
+
 
 export default {
     insertNewSale,
-    insertIntoProductSales
+    insertIntoProductSales,
+    getAllSales,
+    getSaleById,
 }

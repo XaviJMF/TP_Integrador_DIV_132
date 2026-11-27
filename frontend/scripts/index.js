@@ -34,6 +34,7 @@ const botonesCategoria = document.querySelectorAll(".catalog button");
 let categoriaActiva = document.querySelector(".btn-category-active")?.value ?? "";
 let textoBusqueda = (document.querySelector(".input-filter")?.value ?? "").toLowerCase().trim();
 
+const STORAGE_ID_VENTA = "idVentaActual";
 
 // Clave donde se guarda la preferencia de tema
 const STORAGE_TEMA = "tema";
@@ -526,7 +527,32 @@ function mostrarCarrito() {
   actualizarResumenPedido();
 }
 
-// Envía la fecha, precio total, nombre de usuario y productos a /api/sales/
+function obtenerIdVenta() {
+  return localStorage.getItem(STORAGE_ID_VENTA) || "";
+}
+
+// Consulta GET /api/sales/ (ordenado DESC) y devuelve el ID de la última venta creada
+async function obtenerUltimoIdVenta() {
+  try {
+    const respuesta = await fetch("http://localhost:3000/api/sales/");
+    if (!respuesta.ok) {
+      throw new Error(`Error HTTP: ${respuesta.status}`);
+    }
+
+    const data = await respuesta.json();
+    const ultimaVenta = Array.isArray(data.payload) ? data.payload[0] : null;
+    return ultimaVenta?.id ?? "";
+  } catch (error) {
+    console.error("Error al obtener el último ID de venta:", error);
+    return "";
+  }
+}
+
+function formatearNumeroTicket() {
+  const id = obtenerIdVenta();
+  return id ? `P-0${id}` : "Sin ID";
+}
+
 async function registrarVenta() {
   try {
     if (carrito.length === 0) return null;
@@ -549,12 +575,15 @@ async function registrarVenta() {
       throw new Error(`Error HTTP: ${respuesta.status}`);
     }
 
-    return await respuesta.json();
+    const data = await respuesta.json();
+    console.log("Respuesta POST /api/sales/:", data);
+    return data;
   } catch (error) {
     console.error("Error al registrar la venta:", error);
     return null;
   }
 }
+
 // ================================================================================
 
 // ================================================================================
@@ -575,7 +604,7 @@ function actualizarTicket() {
     }
     // 5. Si existe el elemento del número de ticket, le asigna el identificador "M-001"
     if (numeroTicket) {
-        numeroTicket.textContent = "M-001";
+      numeroTicket.textContent = formatearNumeroTicket();
     }
     // 6. Pinta los mensajes con el nombre del cliente en las etiquetas de la vista
     crearMensajePorNombre(nombre);
@@ -583,15 +612,15 @@ function actualizarTicket() {
     actualizarResumenPedido();
 }
 
-function imprimirTicket(){
+function imprimirTicket() {
   const { jsPDF } = window.jspdf;
-
-  const doc = new jsPDF(); 
+  const doc = new jsPDF();
 
   const cliente = leerNombreUsuario() || "Invitado";
-  const fechaTexto = "2020-20-20";
-  const numeroOrden = "M-001";
-
+  const fecha = new Date();
+  const fechaTexto = fecha.toLocaleString("es-AR");
+  const numeroOrden = formatearNumeroTicket();
+  const idArchivo = obtenerIdVenta() || "venta";
 
   let y = 22;
   doc.setFont("helvetica", "bold");
@@ -602,7 +631,6 @@ function imprimirTicket(){
   doc.setFontSize(10);
   doc.text("Ticket de pedido", 20, y + 6);
 
-  // Número de orden y datos del cliente
   y += 20;
   doc.setFontSize(26);
   doc.text(numeroOrden, 20, y);
@@ -616,12 +644,10 @@ function imprimirTicket(){
   doc.setFontSize(10);
   doc.text(fechaTexto, 20, y);
 
-  // Separador
   y += 7;
   doc.setDrawColor(210);
   doc.line(20, y, 190, y);
 
-  // Detalle de productos
   y += 10;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
@@ -631,35 +657,19 @@ function imprimirTicket(){
   doc.setFont("helvetica", "italic");
   doc.setFontSize(10.5);
 
-  const idProductos = []
-  
-  carrito.forEach(producto => {
+  carrito.forEach((producto) => {
+    const cantidad = Number(producto.cantidad) || 1;
+    doc.text(`${producto.name} x${cantidad} — $${producto.price}`, 20, y);
+    y += 10;
+  });
 
-        idProductos.push(producto.id); // Llenamos el array de ids de productos (necesario para crear la venta despues)
-        doc.text(`${producto.name} - ${producto.price}`, 20, y); // 20px derecha y valor del eje y
+  const precioTotal = calcularTotal();
+  y += 10;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(25);
+  doc.text(`TOTAL: $${precioTotal.toFixed(2)}`, 20, y);
 
-        // Al terminar la primer iteracion, incrementamos la posicion vertical para evitar solapamiento
-        y += 10;
-    });
-    // Calculamos el valor total del ticket usando reduce
-    const precioTotal = calcularTotal();
-
-    // Separamos verticalmente los productos del total
-    y += 10
-
-    doc.setFontSize(25);
-    doc.text(`TOTAL: $${precioTotal}`, 20, y);
-
-    const fecha = new Date();
-    const nombreTicket = `${STORAGE_USUARIO}_${fecha.toISOString()}`;
-
-    // Imprimimos ticket de venta
-    doc.save(`ticket-${nombreTicket}.pdf`);
-
-    /*
-    // Llamaremos a la funcion para registrar ventas
-    registrarVenta(precioTotal, idProductos);
-    */
+  doc.save(`ticket-${idArchivo}.pdf`);
 }
 
 
@@ -707,20 +717,38 @@ if (btnNextPage) {
 // Verifica que exista el botón de confirmar antes de registrar el evento
 if (btnConfirmar) {
   btnConfirmar.addEventListener("click", async () => {
-    // 1. Impide confirmar si el carrito está vacío
     if (carrito.length === 0) {
       alert("No podés confirmar un pedido vacío.");
       return;
     }
+
+    const totalTexto = calcularTotal().toFixed(2);
+    const unidadesTexto = calcularUnidades();
+    const seguro = confirm(
+      `¿Estás seguro de confirmar este pedido?\nUnidades: ${unidadesTexto}\nTotal: $${totalTexto}`
+    );
+
+    // Si toca "Cancelar", no manda nada ni cambia de pantalla
+    if (!seguro) return;
+
     const resultado = await registrarVenta();
     if (!resultado) {
-      alert("No se pudo registrar la venta.");
+      alert("No se pudo registrar la venta en la base de datos.");
       return;
     }
 
-    // 2. Marca el pedido como confirmado en localStorage y pasa a la pantalla del ticket
-    localStorage.setItem(STORAGE_PEDIDO_CONFIRMADO, "true");
+    let idNuevo = resultado.saleId ?? resultado.id ?? resultado.insertId ?? "";
+    if (String(idNuevo).trim() === "" && typeof obtenerUltimoIdVenta === "function") {
+      idNuevo = await obtenerUltimoIdVenta();
+    }
 
+    if (String(idNuevo).trim() !== "") {
+      localStorage.setItem(STORAGE_ID_VENTA, String(idNuevo));
+    } else {
+      localStorage.removeItem(STORAGE_ID_VENTA);
+    }
+
+    localStorage.setItem(STORAGE_PEDIDO_CONFIRMADO, "true");
     window.location.href = "ticket.html";
   });
 }

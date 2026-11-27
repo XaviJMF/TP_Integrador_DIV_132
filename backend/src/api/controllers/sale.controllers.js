@@ -44,3 +44,40 @@ export const createSale = async (req, res) => {
         });
     }
 }
+
+///////////////////////////
+export const getSales = async (req, res) => {
+  try {
+    const [rows] = await SaleModels.getAllSales();
+    return res.status(200).json({
+      payload: rows,
+    });
+  } catch (error) {
+    console.error("Error obteniendo ventas:", error);
+    return res.status(500).json({
+      message: "Error interno del servidor al obtener ventas",
+    });
+  }
+};
+
+export const getSale = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await SaleModels.getSaleById(id);
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        message: "Venta no encontrada",
+      });
+    }
+
+    return res.status(200).json({
+      payload: rows[0],
+    });
+  } catch (error) {
+    console.error("Error obteniendo venta por ID:", error);
+    return res.status(500).json({
+      message: "Error interno del servidor al obtener la venta",
+    });
+  }
+};
